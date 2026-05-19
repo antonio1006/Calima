@@ -75,3 +75,37 @@
   max-width: 1240px;
   padding: 0 22px 56px;
 }
+
+@media (max-width: 640px) {
+  .topbar {
+    gap: 12px;
+    padding: 11px 14px;
+  }
+
+  .brand {
+    min-width: 0;
+  }
+
+  .brand-mark {
+    height: 34px;
+    width: 34px;
+  }
+
+  .brand strong {
+    font-size: 14px;
+  }
+
+  .brand span {
+    display: none;
+  }
+
+  .tabs a {
+    font-size: 13px;
+    min-height: 34px;
+    padding: 8px 10px;
+  }
+
+  .shell {
+    padding: 0 14px 42px;
+  }
+}

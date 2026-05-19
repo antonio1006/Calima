@@ -377,30 +377,32 @@ input {
 
   .calima-hero {
     align-content: end;
-    gap: 12px;
-    min-height: calc(100svh - 70px);
-    padding: 18px 16px 16px;
+    background-position: center top;
+    gap: 14px;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    min-height: min(760px, calc(100svh - 64px));
+    padding: 24px 16px 18px;
   }
 
   .calima-hero::after {
-    height: 120px;
+    background: linear-gradient(180deg, rgba(42, 18, 8, 0), #2a1208 88%);
+    height: 180px;
   }
 
   .hero-video {
-    height: 100%;
-    object-position: 54% center;
+    filter: saturate(1.08) contrast(1.04);
+    height: 62%;
+    object-fit: cover;
+    object-position: center top;
+    top: 0;
     width: 100%;
   }
 
   .hero-shade {
     background:
-      linear-gradient(
-        0deg,
-        rgba(42, 18, 8, 0.9),
-        rgba(42, 18, 8, 0.5) 24%,
-        rgba(42, 18, 8, 0.08) 58%
-      ),
-      linear-gradient(90deg, rgba(42, 18, 8, 0.46), rgba(42, 18, 8, 0.1));
+      linear-gradient(180deg, rgba(42, 18, 8, 0.08) 0%, rgba(42, 18, 8, 0.18) 38%, #2a1208 69%),
+      linear-gradient(90deg, rgba(42, 18, 8, 0.55), rgba(42, 18, 8, 0.1));
   }
 
   .hero-copy {
@@ -409,47 +411,49 @@ input {
   }
 
   .hero-logo {
-    height: 58px;
-    margin-bottom: 10px;
-    width: 58px;
+    height: 66px;
+    margin-bottom: 12px;
+    width: 66px;
   }
 
   .hero-copy h1 {
-    font-size: clamp(44px, 17vw, 68px);
-    margin: 4px 0 8px;
+    font-size: clamp(58px, 22vw, 86px);
+    margin: 4px 0 10px;
   }
 
   .hero-copy p {
-    display: none;
+    display: block;
+    font-size: 15px;
+    line-height: 1.45;
+    margin: 0;
+    max-width: 360px;
   }
 
   .hero-actions {
-    align-items: center;
-    flex-direction: row;
-    gap: 9px;
-    margin-top: 8px;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
   }
 
   .hero-actions .btn {
-    flex: 1;
-    min-height: 40px;
-    padding: 0 12px;
-    width: auto;
+    min-height: 46px;
+    padding: 0 14px;
+    width: 100%;
   }
 
   .hero-actions span {
-    font-size: 12px;
-    max-width: 110px;
+    font-size: 13px;
+    max-width: none;
   }
 
   .hero-panel {
-    align-items: center;
-    backdrop-filter: blur(10px);
-    background: rgba(58, 21, 8, 0.62);
+    backdrop-filter: blur(14px);
+    background: rgba(58, 21, 8, 0.76);
     display: grid;
-    gap: 8px;
-    grid-template-columns: minmax(0, 1fr) auto;
-    padding: 12px;
+    gap: 10px;
+    grid-template-columns: 1fr;
+    padding: 14px;
   }
 
   .form-row {
@@ -465,34 +469,92 @@ input {
   }
 
   .hero-panel strong {
-    font-size: 18px;
+    font-size: 22px;
   }
 
   .hero-panel p {
-    font-size: 13px;
+    font-size: 14px;
   }
 
   .hero-stats {
-    grid-template-columns: repeat(2, minmax(64px, 1fr));
-    margin-top: 0;
+    gap: 8px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 4px;
   }
 
   .hero-stats div {
-    padding: 9px;
+    padding: 11px;
   }
 
   .hero-stats strong {
-    font-size: 18px;
+    font-size: 20px;
   }
 
   .hero-stats span {
-    font-size: 11px;
+    font-size: 12px;
+  }
+
+  .manifesto {
+    gap: 14px;
+    padding: 22px 18px;
+  }
+
+  .manifesto h2 {
+    font-size: 34px;
+  }
+
+  .manifesto p {
+    font-size: 16px;
+  }
+
+  .event-story img {
+    aspect-ratio: 4 / 3;
+  }
+
+  .event-story > div,
+  .ticket-panel {
+    padding: 18px;
+  }
+
+  .ticket-panel {
+    gap: 18px;
+  }
+
+  .event-story h2,
+  .ticket-panel h2 {
+    font-size: 28px;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  input {
+    min-height: 48px;
   }
 }
 
 @media (max-width: 420px) {
-  .hero-actions span {
-    display: none;
+  .calima-hero {
+    min-height: min(720px, calc(100svh - 62px));
+    padding: 20px 14px 16px;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(54px, 21vw, 74px);
+  }
+
+  .hero-copy p {
+    font-size: 14px;
+  }
+
+  .hero-logo {
+    height: 58px;
+    width: 58px;
+  }
+
+  .hero-panel {
+    padding: 12px;
   }
 }
 
