@@ -24,7 +24,7 @@
         </label>
 
         @if (hasLoginError()) {
-          <p class="error">Credenziali non valide.</p>
+          <p class="error">{{ auth.authError() || 'Credenziali non valide.' }}</p>
         }
 
         <button class="btn wide" type="submit">Entra</button>

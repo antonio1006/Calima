@@ -1,6 +1,6 @@
 const { json, methodNotAllowed, readJson, setSessionCookie } = require('../_lib/http');
 const { sendWelcomeEmail } = require('../_lib/email');
-const { adminClient, anonClient, toAppUser } = require('../_lib/supabase');
+const { adminClient, anonClient, profileForAuthUser, toAppUser } = require('../_lib/supabase');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return methodNotAllowed(res);
@@ -19,6 +19,7 @@ module.exports = async function handler(req, res) {
     }
 
     const supabase = adminClient();
+    let authUser = null;
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email,
       password,
@@ -31,24 +32,29 @@ module.exports = async function handler(req, res) {
     });
 
     if (authError || !authData.user) {
-      return json(res, 409, { error: 'ACCOUNT_ALREADY_EXISTS' });
+      const existingSession = await anonClient().auth.signInWithPassword({ email, password });
+      if (existingSession.error || !existingSession.data.user) {
+        return json(res, 409, {
+          error: 'ACCOUNT_ALREADY_EXISTS',
+          detail: authError?.message,
+        });
+      }
+
+      authUser = existingSession.data.user;
+    } else {
+      authUser = authData.user;
     }
 
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .insert({
-        auth_user_id: authData.user.id,
+    const profile = await profileForAuthUser(supabase, {
+      ...authUser,
+      email,
+      user_metadata: {
+        ...(authUser.user_metadata || {}),
         full_name: name,
-        email,
         phone,
-        role: 'client',
-      })
-      .select('id, auth_user_id, full_name, email, phone, role')
-      .single();
-
-    if (profileError) {
-      throw profileError;
-    }
+        role: authUser.user_metadata?.role || 'client',
+      },
+    });
 
     const auth = anonClient();
     const { data: sessionData, error: sessionError } = await auth.auth.signInWithPassword({

@@ -52,7 +52,7 @@ export class AuthStore {
     });
     const payload = (await response.json()) as AuthResponse;
     if (!response.ok || !payload.user) {
-      this.authError.set(payload.error || 'Credenziali non valide.');
+      this.authError.set(this.authMessage(payload.error, 'Credenziali non valide.'));
       this.currentUser.set(null);
       return false;
     }
@@ -72,7 +72,7 @@ export class AuthStore {
     });
     const payload = (await response.json()) as AuthResponse;
     if (!response.ok || !payload.user) {
-      this.authError.set(payload.error || 'Registrazione non riuscita.');
+      this.authError.set(this.authMessage(payload.error, 'Registrazione non riuscita.'));
       this.currentUser.set(null);
       return false;
     }
@@ -87,5 +87,17 @@ export class AuthStore {
       credentials: 'include',
     });
     this.currentUser.set(null);
+  }
+
+  private authMessage(error: string | undefined, fallback: string): string {
+    const messages: Record<string, string> = {
+      ACCOUNT_ALREADY_EXISTS:
+        'Esiste gia un account con questa email. Accedi con la password corretta.',
+      INVALID_CREDENTIALS: 'Email o password non corretti.',
+      MISSING_CREDENTIALS: 'Inserisci email e password.',
+      MISSING_FIELDS: 'Compila tutti i campi richiesti.',
+    };
+
+    return error ? (messages[error] ?? error) : fallback;
   }
 }

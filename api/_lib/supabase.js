@@ -14,15 +14,11 @@ function requiredEnv(name, fallbackName) {
 }
 
 function adminClient() {
-  return createClient(
-    requiredEnv('SUPABASE_URL'),
-    requiredEnv('SUPABASE_SERVICE_ROLE_KEY'),
-    {
-      auth: {
-        persistSession: false,
-      },
+  return createClient(requiredEnv('SUPABASE_URL'), requiredEnv('SUPABASE_SERVICE_ROLE_KEY'), {
+    auth: {
+      persistSession: false,
     },
-  );
+  });
 }
 
 function anonClient() {
@@ -38,6 +34,10 @@ function anonClient() {
 }
 
 async function profileForAuthUser(supabase, user) {
+  const email = String(user.email || '')
+    .trim()
+    .toLowerCase();
+  const metadata = user.user_metadata || {};
   const { data: profile, error } = await supabase
     .from('profiles')
     .select('id, auth_user_id, full_name, email, phone, role')
@@ -52,13 +52,41 @@ async function profileForAuthUser(supabase, user) {
     return profile;
   }
 
-  const metadata = user.user_metadata || {};
+  const { data: emailProfile, error: emailProfileError } = await supabase
+    .from('profiles')
+    .select('id, auth_user_id, full_name, email, phone, role')
+    .eq('email', email)
+    .maybeSingle();
+
+  if (emailProfileError) {
+    throw emailProfileError;
+  }
+
+  if (emailProfile) {
+    const { data: linked, error: linkError } = await supabase
+      .from('profiles')
+      .update({
+        auth_user_id: user.id,
+        full_name: emailProfile.full_name || metadata.full_name || email,
+        phone: emailProfile.phone || metadata.phone || '',
+      })
+      .eq('id', emailProfile.id)
+      .select('id, auth_user_id, full_name, email, phone, role')
+      .single();
+
+    if (linkError) {
+      throw linkError;
+    }
+
+    return linked;
+  }
+
   const { data: created, error: createError } = await supabase
     .from('profiles')
     .insert({
       auth_user_id: user.id,
-      full_name: metadata.full_name || user.email,
-      email: user.email,
+      full_name: metadata.full_name || email,
+      email,
       phone: metadata.phone || '',
       role: metadata.role || 'client',
     })
