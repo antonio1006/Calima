@@ -16,16 +16,17 @@ async function persistImage(supabase, image) {
   const extension = contentType.split('/')[1].replace('jpeg', 'jpg').replace('svg+xml', 'svg');
   const fileName = `events/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`;
   const buffer = Buffer.from(match[2], 'base64');
+  const bucket = process.env.SUPABASE_EVENT_IMAGES_BUCKET || 'eventi';
 
   const { error } = await supabase.storage
-    .from('event-images')
+    .from(bucket)
     .upload(fileName, buffer, { contentType, upsert: true });
 
   if (error) {
-    throw error;
+    throw new Error(`STORAGE_UPLOAD_FAILED: ${error.message}`);
   }
 
-  const { data } = supabase.storage.from('event-images').getPublicUrl(fileName);
+  const { data } = supabase.storage.from(bucket).getPublicUrl(fileName);
   return data.publicUrl;
 }
 

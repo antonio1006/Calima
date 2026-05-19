@@ -21,12 +21,37 @@ create table if not exists public.profiles (
   id uuid primary key default gen_random_uuid(),
   auth_user_id uuid unique,
   full_name text not null,
-  email text not null unique,
+  email text not null unique check (email = lower(email) and email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'),
   phone text,
+  birth_date date,
   role public.user_role not null default 'client',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.profiles
+add column if not exists birth_date date;
+
+alter table public.profiles
+drop constraint if exists profiles_birth_date_check;
+
+alter table public.profiles
+add constraint profiles_birth_date_check
+check (birth_date is null or birth_date <= current_date - interval '13 years');
+
+alter table public.profiles
+drop constraint if exists profiles_phone_check;
+
+alter table public.profiles
+add constraint profiles_phone_check
+check (phone is null or phone ~ '^\+?[0-9 ]{8,18}$');
+
+alter table public.profiles
+drop constraint if exists profiles_email_check;
+
+alter table public.profiles
+add constraint profiles_email_check
+check (email = lower(email) and email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$');
 
 create table if not exists public.events (
   id uuid primary key default gen_random_uuid(),
@@ -52,8 +77,8 @@ create table if not exists public.tickets (
   first_name text not null,
   last_name text not null,
   birth_date date not null,
-  email text not null,
-  phone text not null,
+  email text not null check (email = lower(email) and email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'),
+  phone text not null check (phone ~ '^\+?[0-9 ]{8,18}$'),
   payment_status public.ticket_status not null default 'pending',
   checked_in boolean not null default false,
   checked_in_at timestamptz,
@@ -61,12 +86,33 @@ create table if not exists public.tickets (
   created_at timestamptz not null default now()
 );
 
+alter table public.tickets
+drop constraint if exists tickets_birth_date_check;
+
+alter table public.tickets
+add constraint tickets_birth_date_check
+check (birth_date <= current_date - interval '13 years');
+
+alter table public.tickets
+drop constraint if exists tickets_phone_check;
+
+alter table public.tickets
+add constraint tickets_phone_check
+check (phone ~ '^\+?[0-9 ]{8,18}$');
+
+alter table public.tickets
+drop constraint if exists tickets_email_check;
+
+alter table public.tickets
+add constraint tickets_email_check
+check (email = lower(email) and email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$');
+
 insert into
   storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values
   (
-    'event-images',
-    'event-images',
+    'eventi',
+    'eventi',
     true,
     5242880,
     array['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml']
@@ -100,31 +146,6 @@ drop trigger if exists events_set_updated_at on public.events;
 create trigger events_set_updated_at
 before update on public.events
 for each row execute function public.set_updated_at();
-
-insert into public.events (
-  name,
-  event_date,
-  event_time,
-  city,
-  venue,
-  capacity,
-  price_cents,
-  image_path,
-  description,
-  is_published
-)
-select
-  'Calima Opening Night',
-  '2026-06-12',
-  '22:30',
-  'Tenerife',
-  'Secret terrace',
-  180,
-  2500,
-  '/calima-event-cover.svg',
-  'Una serata calda, tribale e solare: musica, persone e vibrazioni ispirate al vento di Tenerife.',
-  true
-where not exists (select 1 from public.events);
 
 create or replace function public.create_ticket_atomic(
   p_event_id uuid,

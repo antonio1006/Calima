@@ -40,7 +40,7 @@ async function profileForAuthUser(supabase, user) {
   const metadata = user.user_metadata || {};
   const { data: profile, error } = await supabase
     .from('profiles')
-    .select('id, auth_user_id, full_name, email, phone, role')
+    .select('id, auth_user_id, full_name, email, phone, birth_date, role')
     .eq('auth_user_id', user.id)
     .maybeSingle();
 
@@ -54,7 +54,7 @@ async function profileForAuthUser(supabase, user) {
 
   const { data: emailProfile, error: emailProfileError } = await supabase
     .from('profiles')
-    .select('id, auth_user_id, full_name, email, phone, role')
+    .select('id, auth_user_id, full_name, email, phone, birth_date, role')
     .eq('email', email)
     .maybeSingle();
 
@@ -69,9 +69,10 @@ async function profileForAuthUser(supabase, user) {
         auth_user_id: user.id,
         full_name: emailProfile.full_name || metadata.full_name || email,
         phone: emailProfile.phone || metadata.phone || '',
+        birth_date: emailProfile.birth_date || metadata.birth_date || null,
       })
       .eq('id', emailProfile.id)
-      .select('id, auth_user_id, full_name, email, phone, role')
+      .select('id, auth_user_id, full_name, email, phone, birth_date, role')
       .single();
 
     if (linkError) {
@@ -88,9 +89,10 @@ async function profileForAuthUser(supabase, user) {
       full_name: metadata.full_name || email,
       email,
       phone: metadata.phone || '',
+      birth_date: metadata.birth_date || null,
       role: metadata.role || 'client',
     })
-    .select('id, auth_user_id, full_name, email, phone, role')
+    .select('id, auth_user_id, full_name, email, phone, birth_date, role')
     .single();
 
   if (createError) {
@@ -108,6 +110,7 @@ function toAppUser(profile) {
     password: '',
     role: profile.role,
     phone: profile.phone || '',
+    birthDate: profile.birth_date || undefined,
   };
 }
 

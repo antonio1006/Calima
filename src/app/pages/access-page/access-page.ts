@@ -26,10 +26,18 @@ export class AccessPage {
   });
 
   readonly registerForm = this.formBuilder.nonNullable.group({
-    name: ['', Validators.required],
+    name: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
-    phone: ['', Validators.required],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    phone: ['', [Validators.required, Validators.pattern(/^\+?[0-9 ]{8,18}$/)]],
+    birthDate: ['', [Validators.required, this.minimumAgeValidator(13)]],
+    password: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/),
+      ],
+    ],
   });
 
   readonly userTickets = computed(() => {
@@ -62,6 +70,9 @@ export class AccessPage {
 
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
+      this.registerError.set(
+        'Controlla email, telefono, data di nascita e password. La password deve avere almeno 8 caratteri, una maiuscola, una minuscola e un numero.',
+      );
       return;
     }
 
@@ -71,7 +82,7 @@ export class AccessPage {
       return;
     }
 
-    this.registerForm.reset({ name: '', email: '', phone: '', password: '' });
+    this.registerForm.reset({ name: '', email: '', phone: '', birthDate: '', password: '' });
   }
 
   async logout(): Promise<void> {
@@ -117,5 +128,18 @@ export class AccessPage {
     }
 
     return ['Vedere i biglietti acquistati', 'Controllare dati personali e stato pagamento'];
+  }
+
+  private minimumAgeValidator(age: number) {
+    return (control: { value: string }) => {
+      if (!control.value) return null;
+
+      const birthDate = new Date(`${control.value}T00:00:00`);
+      if (Number.isNaN(birthDate.getTime())) return { minimumAge: true };
+
+      const limit = new Date();
+      limit.setFullYear(limit.getFullYear() - age);
+      return birthDate <= limit ? null : { minimumAge: true };
+    };
   }
 }

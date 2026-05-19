@@ -12,9 +12,15 @@ module.exports = async function handler(req, res) {
       .trim()
       .toLowerCase();
     const phone = String(body.phone || '').trim();
+    const birthDate = String(body.birthDate || '');
     const password = String(body.password || '');
 
-    if (!name || !email || !password) {
+    const validationError = validateRegistration({ name, email, phone, birthDate, password });
+    if (validationError) {
+      return json(res, 400, { error: validationError });
+    }
+
+    if (!name || !email || !password || !birthDate) {
       return json(res, 400, { error: 'MISSING_FIELDS' });
     }
 
@@ -27,6 +33,7 @@ module.exports = async function handler(req, res) {
       user_metadata: {
         full_name: name,
         phone,
+        birth_date: birthDate,
         role: 'client',
       },
     });
@@ -52,6 +59,7 @@ module.exports = async function handler(req, res) {
         ...(authUser.user_metadata || {}),
         full_name: name,
         phone,
+        birth_date: birthDate,
         role: authUser.user_metadata?.role || 'client',
       },
     });
@@ -73,3 +81,34 @@ module.exports = async function handler(req, res) {
     return json(res, error.statusCode || 500, { error: error.message || 'REGISTRATION_FAILED' });
   }
 };
+
+function validateRegistration({ name, email, phone, birthDate, password }) {
+  if (!name || name.length < 2 || !email || !phone || !birthDate || !password) {
+    return 'MISSING_FIELDS';
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return 'INVALID_EMAIL';
+  }
+
+  if (!/^\+?[0-9 ]{8,18}$/.test(phone)) {
+    return 'INVALID_PHONE';
+  }
+
+  if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password)) {
+    return 'WEAK_PASSWORD';
+  }
+
+  const parsedDate = new Date(`${birthDate}T00:00:00`);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return 'INVALID_BIRTH_DATE';
+  }
+
+  const limit = new Date();
+  limit.setFullYear(limit.getFullYear() - 13);
+  if (parsedDate > limit) {
+    return 'MINIMUM_AGE';
+  }
+
+  return null;
+}

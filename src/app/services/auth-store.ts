@@ -6,6 +6,7 @@ interface ClientRegistration {
   email: string;
   password: string;
   phone: string;
+  birthDate: string;
 }
 
 interface AuthResponse {
@@ -96,6 +97,12 @@ export class AuthStore {
       INVALID_CREDENTIALS: 'Email o password non corretti.',
       MISSING_CREDENTIALS: 'Inserisci email e password.',
       MISSING_FIELDS: 'Compila tutti i campi richiesti.',
+      INVALID_EMAIL: 'Inserisci un indirizzo email valido.',
+      INVALID_PHONE: 'Inserisci un numero di telefono valido.',
+      INVALID_BIRTH_DATE: 'Inserisci una data di nascita valida.',
+      MINIMUM_AGE: 'Devi avere almeno 13 anni per registrarti.',
+      WEAK_PASSWORD:
+        'La password deve avere almeno 8 caratteri, una maiuscola, una minuscola e un numero.',
     };
 
     return error ? (messages[error] ?? error) : fallback;

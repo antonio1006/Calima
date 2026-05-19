@@ -35,6 +35,7 @@ export interface AppUser {
   password: string;
   role: UserRole;
   phone: string;
+  birthDate?: string;
 }
 
 export interface EventStats {

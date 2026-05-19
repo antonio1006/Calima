@@ -107,6 +107,13 @@ label {
   gap: 7px;
 }
 
+.field-hint {
+  color: rgba(249, 231, 195, 0.68);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
 input {
   background: rgba(255, 243, 216, 0.96);
   border: 1px solid rgba(217, 148, 24, 0.48);
