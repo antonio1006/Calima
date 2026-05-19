@@ -123,6 +123,10 @@
         <button class="btn wide" type="submit" [disabled]="isRegistering()">
           {{ isRegistering() ? 'Registrazione...' : 'Completa registrazione' }}
         </button>
+
+        @if (registerMessage(); as message) {
+          <p class="form-message" [class.ok]="registerSucceeded()">{{ message }}</p>
+        }
       </form>
     </aside>
   </section>

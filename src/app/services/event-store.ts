@@ -123,7 +123,7 @@ export class EventStore {
       });
       const payload = await this.readPayload<TicketResponse>(response);
       if (!response.ok) {
-        this.error.set(payload.error || 'Registrazione non riuscita.');
+        this.error.set(this.ticketErrorMessage(payload.error));
         return null;
       }
 
@@ -235,5 +235,17 @@ export class EventStore {
     }
 
     return error || 'Operazione admin non riuscita.';
+  }
+
+  private ticketErrorMessage(error?: string): string {
+    const messages: Record<string, string> = {
+      EVENT_NOT_FOUND: 'Evento non trovato o non ancora pubblicato.',
+      EVENT_SOLD_OUT: 'I posti per questo evento sono terminati.',
+      INVALID_EVENT_ID: 'Evento non valido. Ricarica la pagina e riprova.',
+      MISSING_FIELDS: 'Compila tutti i campi richiesti.',
+      TICKET_NOT_CREATED: 'Non siamo riusciti a creare il ticket.',
+    };
+
+    return error ? (messages[error] ?? error) : 'Registrazione non riuscita.';
   }
 }

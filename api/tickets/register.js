@@ -43,7 +43,7 @@ module.exports = async function handler(req, res) {
     });
 
     if (ticketError) {
-      return json(res, 409, { error: ticketError.message });
+      return json(res, 409, { error: normalizeTicketError(ticketError.message) });
     }
 
     const { data: eventRow, error: eventError } = await supabase
@@ -68,3 +68,19 @@ module.exports = async function handler(req, res) {
     return json(res, error.statusCode || 500, { error: error.message || 'TICKET_FAILED' });
   }
 };
+
+function normalizeTicketError(message = '') {
+  if (message.includes('EVENT_NOT_FOUND')) {
+    return 'EVENT_NOT_FOUND';
+  }
+
+  if (message.includes('EVENT_SOLD_OUT')) {
+    return 'EVENT_SOLD_OUT';
+  }
+
+  if (message.includes('invalid input syntax for type uuid')) {
+    return 'INVALID_EVENT_ID';
+  }
+
+  return message || 'TICKET_FAILED';
+}

@@ -25,6 +25,8 @@ export class EventsPage {
 
   readonly store = inject(EventStore);
   readonly isRegistering = signal(false);
+  readonly registerMessage = signal<string | null>(null);
+  readonly registerSucceeded = signal(false);
 
   readonly events = this.store.events;
   readonly mainEvent = computed(() => this.events()[0]);
@@ -56,8 +58,12 @@ export class EventsPage {
   }
 
   async register(): Promise<void> {
+    this.registerMessage.set(null);
+    this.registerSucceeded.set(false);
+
     if (this.registrationForm.invalid) {
       this.registrationForm.markAllAsTouched();
+      this.registerMessage.set('Compila tutti i campi richiesti.');
       return;
     }
 
@@ -65,7 +71,7 @@ export class EventsPage {
     const ticket = await this.store.createTicket(this.registrationForm.getRawValue());
     this.isRegistering.set(false);
     if (!ticket) {
-      alert(this.store.error() || 'Registrazione non riuscita.');
+      this.registerMessage.set(this.store.error() || 'Registrazione non riuscita.');
       return;
     }
 
@@ -77,7 +83,8 @@ export class EventsPage {
       email: '',
       phone: '',
     });
-    alert(`Ticket creato: ${ticket.id}`);
+    this.registerSucceeded.set(true);
+    this.registerMessage.set(`Registrazione completata. Ticket ${ticket.id}`);
   }
 
   playHeroVideo(): void {

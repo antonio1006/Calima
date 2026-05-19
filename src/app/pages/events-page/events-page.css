@@ -333,6 +333,16 @@ input {
   padding: 10px 11px;
 }
 
+.form-message {
+  color: #ff9aaa;
+  font-weight: 800;
+  margin: 0;
+}
+
+.form-message.ok {
+  color: #95e0ad;
+}
+
 .btn {
   align-items: center;
   background: #d99418;
