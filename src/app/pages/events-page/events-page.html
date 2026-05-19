@@ -1,0 +1,144 @@
+@if (mainEvent(); as event) {
+  <section class="calima-hero">
+    <video
+      #heroVideo
+      class="hero-video"
+      autoplay
+      muted
+      loop
+      playsinline
+      webkit-playsinline
+      preload="auto"
+      poster="/calima-logo.webp"
+      aria-hidden="true"
+      (canplay)="playHeroVideo()"
+    >
+      <source src="/calima-hero.mp4" type="video/mp4" />
+    </video>
+    <div class="hero-shade"></div>
+    <div class="hero-copy">
+      <img class="hero-logo" src="/calima-logo.webp" alt="Calima logo" />
+      <span class="eyebrow">Tenerife movement</span>
+      <h1>Calima</h1>
+      <p>
+        Un movimento nato dal calore dell'isola: tramonto, ritmo, sabbia nell'aria e una community
+        che si riconosce appena entra.
+      </p>
+      <div class="hero-actions">
+        <a class="btn" href="#ticket">Prenota il tuo ingresso</a>
+        <span>{{ event.date | date: 'dd MMMM yyyy' }} - {{ event.time }}</span>
+      </div>
+    </div>
+    <aside class="hero-panel" aria-label="Serata in programma">
+      <span>Prossima serata</span>
+      <strong>{{ event.name }}</strong>
+      <p>{{ event.venue }}, {{ event.city }}</p>
+      <div class="hero-stats">
+        <div>
+          <strong>{{ store.statsFor(event.id).remaining }}</strong>
+          <span>posti rimasti</span>
+        </div>
+        <div>
+          <strong>{{ event.price | currency: 'EUR' }}</strong>
+          <span>ticket</span>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="manifesto">
+    <div>
+      <span class="eyebrow">Manifesto</span>
+      <h2>Calima non è solo una serata.</h2>
+    </div>
+    <p>
+      E un richiamo caldo: suoni latini e afro, energia da tramonto, visual solari e persone che
+      cercano un posto dove sentirsi parte di qualcosa.
+    </p>
+  </section>
+
+  <section class="event-showcase" id="ticket">
+    <div class="event-story">
+      <img [src]="event.image" [alt]="event.name" />
+      <div>
+        <span class="eyebrow">Unica data aperta</span>
+        <h2>{{ event.name }}</h2>
+        <p>{{ event.description }}</p>
+        <div class="info-grid">
+          <div>
+            <strong>{{ event.date | date: 'dd MMMM yyyy' }}</strong>
+            <span>Data</span>
+          </div>
+          <div>
+            <strong>{{ event.time }}</strong>
+            <span>Orario</span>
+          </div>
+          <div>
+            <strong>{{ event.capacity }}</strong>
+            <span>Capienza</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="ticket-panel">
+      <div class="registration-copy">
+        <span class="eyebrow">Registrazione</span>
+        <h2>Unisciti a Calima</h2>
+        <p>
+          Lascia i tuoi dati per creare il profilo ospite e generare il ticket demo collegato alla
+          tua email.
+        </p>
+      </div>
+      <form [formGroup]="registrationForm" (ngSubmit)="register()">
+        <input formControlName="eventId" type="hidden" />
+
+        <div class="form-row">
+          <label>
+            Nome
+            <input formControlName="firstName" autocomplete="given-name" />
+          </label>
+
+          <label>
+            Cognome
+            <input formControlName="lastName" autocomplete="family-name" />
+          </label>
+        </div>
+
+        <label>
+          Data di nascita
+          <input formControlName="birthDate" type="date" />
+        </label>
+
+        <label>
+          Email
+          <input formControlName="email" type="email" autocomplete="email" />
+        </label>
+
+        <label>
+          Cellulare
+          <input formControlName="phone" type="tel" autocomplete="tel" />
+        </label>
+
+        <button class="btn wide" type="submit" [disabled]="isRegistering()">
+          {{ isRegistering() ? 'Registrazione...' : 'Completa registrazione' }}
+        </button>
+      </form>
+    </aside>
+  </section>
+} @else {
+  <section class="events-empty">
+    <img class="hero-logo" src="/calima-logo.webp" alt="Calima logo" />
+    <span class="eyebrow">Calima</span>
+    @if (store.isLoading()) {
+      <h1>Caricamento evento</h1>
+      <p>Stiamo preparando la prossima serata.</p>
+    } @else if (store.error()) {
+      <h1>Evento non disponibile</h1>
+      <p>{{ store.error() }}</p>
+    } @else {
+      <h1>Evento in preparazione</h1>
+      <p>Non ci sono ancora eventi pubblicati nel database.</p>
+    }
+  </section>
+}

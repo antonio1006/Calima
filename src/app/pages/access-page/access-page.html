@@ -1,0 +1,163 @@
+<section class="access-head">
+  <div>
+    <img src="/calima-logo.webp" alt="Calima" />
+    <span class="eyebrow">Accesso</span>
+    <h1>Area Calima</h1>
+    <p>Un solo ingresso: cliente, scanner e admin vedono solo cio che serve al proprio ruolo.</p>
+  </div>
+</section>
+
+@if (!auth.isLoggedIn()) {
+  <section class="access-layout">
+    <div class="panel">
+      <span class="eyebrow">Login</span>
+      <h2>Entra nel movimento</h2>
+      <form [formGroup]="loginForm" (ngSubmit)="login()">
+        <label>
+          Email
+          <input formControlName="email" type="email" />
+        </label>
+
+        <label>
+          Password
+          <input formControlName="password" type="password" />
+        </label>
+
+        @if (hasLoginError()) {
+          <p class="error">Credenziali non valide.</p>
+        }
+
+        <button class="btn wide" type="submit">Entra</button>
+      </form>
+    </div>
+
+    <aside class="panel">
+      <span class="eyebrow">Registrazione</span>
+      <h2>Crea il tuo accesso</h2>
+      <form [formGroup]="registerForm" (ngSubmit)="createAccount()">
+        <label>
+          Nome completo
+          <input formControlName="name" autocomplete="name" />
+        </label>
+
+        <label>
+          Email
+          <input formControlName="email" type="email" autocomplete="email" />
+        </label>
+
+        <label>
+          Cellulare
+          <input formControlName="phone" type="tel" autocomplete="tel" />
+        </label>
+
+        <label>
+          Password
+          <input formControlName="password" type="password" autocomplete="new-password" />
+        </label>
+
+        @if (registerError(); as message) {
+          <p class="error">{{ message }}</p>
+        }
+
+        <button class="btn wide" type="submit">Registrati</button>
+      </form>
+    </aside>
+
+    <aside class="panel access-note">
+      <span class="eyebrow">Account reale</span>
+      <h2>Area personale</h2>
+      <p class="muted">
+        Usa la registrazione per creare un account cliente. Gli account staff e admin vengono
+        assegnati dal pannello Supabase impostando il ruolo nel profilo.
+      </p>
+    </aside>
+  </section>
+} @else {
+  @if (auth.user(); as user) {
+    <section class="panel account-summary">
+      <div>
+        <span class="eyebrow">{{ roleLabel(user.role) }}</span>
+        <h2>{{ user.name }}</h2>
+        <p>{{ user.email }} - {{ user.phone }}</p>
+      </div>
+      <button class="btn secondary" type="button" (click)="logout()">Esci</button>
+    </section>
+
+    @if (user.role === 'client') {
+      <section class="content-grid">
+        <div class="panel">
+          <span class="eyebrow">Wallet</span>
+          <h2>Biglietti acquistati</h2>
+          @if (userTickets().length) {
+            <div class="ticket-list">
+              @for (ticket of userTickets(); track ticket.id) {
+                <article class="ticket-row">
+                  <div>
+                    <strong>{{ eventName(ticket) }}</strong>
+                    <span>{{ ticket.id }}</span>
+                  </div>
+                  <div>
+                    <span class="pill" [class.ok]="ticket.paymentStatus === 'paid'">
+                      {{ ticket.paymentStatus === 'paid' ? 'Pagato' : 'Da pagare' }}
+                    </span>
+                    <span class="pill" [class.ok]="ticket.checkedIn">
+                      {{ ticket.checkedIn ? 'Entrato' : 'Non entrato' }}
+                    </span>
+                    <span>{{ ticketPrice(ticket) | currency: 'EUR' }}</span>
+                  </div>
+                </article>
+              }
+            </div>
+          } @else {
+            <p class="muted">Non risultano ancora biglietti associati a questa email.</p>
+          }
+        </div>
+
+        <aside class="panel">
+          <span class="eyebrow">Profilo</span>
+          <h2>Info personali</h2>
+          <dl>
+            <div>
+              <dt>Nome</dt>
+              <dd>{{ user.name }}</dd>
+            </div>
+            <div>
+              <dt>Email</dt>
+              <dd>{{ user.email }}</dd>
+            </div>
+            <div>
+              <dt>Telefono</dt>
+              <dd>{{ user.phone }}</dd>
+            </div>
+          </dl>
+        </aside>
+      </section>
+    } @else {
+      <section class="content-grid">
+        <div class="panel">
+          <span class="eyebrow">Staff</span>
+          <h2>I tuoi privilegi</h2>
+          <div class="privilege-list">
+            @for (privilege of privileges(user.role); track privilege) {
+              <div class="privilege-row">{{ privilege }}</div>
+            }
+          </div>
+        </div>
+
+        <aside class="panel">
+          <span class="eyebrow">Console</span>
+          <h2>Accesso operativo</h2>
+          @if (user.role === 'admin') {
+            <p class="muted">Puoi entrare nella gestione eventi e modificare la configurazione.</p>
+            <a class="btn wide" routerLink="/admin">Apri gestione eventi</a>
+          } @else {
+            <p class="muted">
+              In questa fase del corso mostriamo solo i privilegi. La schermata scanner arrivera
+              nella prossima lezione.
+            </p>
+          }
+        </aside>
+      </section>
+    }
+  }
+}

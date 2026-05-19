@@ -1,0 +1,239 @@
+import { computed, Injectable, signal } from '@angular/core';
+import { EventItem, EventStats, Ticket } from '../models/event.model';
+
+interface AppState {
+  events: EventItem[];
+  tickets: Ticket[];
+}
+
+interface EventsResponse {
+  events: EventItem[];
+}
+
+interface TicketResponse {
+  ticket: Ticket;
+}
+
+const emptyStats: EventStats = {
+  checkedIn: 0,
+  remaining: 0,
+  revenue: 0,
+  sold: 0,
+};
+
+@Injectable({ providedIn: 'root' })
+export class EventStore {
+  private readonly state = signal<AppState>({ events: [], tickets: [] });
+
+  readonly isLoading = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly events = computed(() => this.state().events);
+  readonly tickets = computed(() => this.state().tickets);
+  readonly totalTickets = computed(() =>
+    this.events().reduce((total, event) => total + this.statsFor(event.id).sold, 0),
+  );
+  readonly totalRevenue = computed(() =>
+    this.events().reduce((total, event) => total + this.statsFor(event.id).revenue, 0),
+  );
+
+  constructor() {
+    void this.refreshEvents();
+  }
+
+  async refreshEvents(admin = false): Promise<void> {
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    try {
+      const response = await fetch(admin ? '/api/admin/events' : '/api/events', {
+        credentials: 'include',
+      });
+      const payload = await this.readPayload<EventsResponse>(response);
+      if (!response.ok) {
+        throw new Error(payload.error || 'Impossibile caricare gli eventi.');
+      }
+
+      this.state.update((state) => ({ ...state, events: payload.events || [] }));
+    } catch (error) {
+      this.error.set(error instanceof Error ? error.message : 'Errore caricamento eventi.');
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  findEvent(eventId: string): EventItem | undefined {
+    return this.state().events.find((event) => event.id === eventId);
+  }
+
+  ticketsForEmail(email: string): Ticket[] {
+    const normalized = email.trim().toLowerCase();
+    return this.state().tickets.filter((ticket) => ticket.email.toLowerCase() === normalized);
+  }
+
+  async loadTicketsForEmail(email: string): Promise<void> {
+    if (!email) return;
+
+    try {
+      const response = await fetch(`/api/tickets/by-email?email=${encodeURIComponent(email)}`, {
+        credentials: 'include',
+      });
+      const payload = await this.readPayload<{ tickets?: Ticket[] }>(response);
+      if (!response.ok) {
+        this.error.set(payload.error || 'Impossibile caricare i ticket.');
+        return;
+      }
+
+      this.state.update((state) => ({ ...state, tickets: payload.tickets || [] }));
+    } catch (error) {
+      this.error.set(error instanceof Error ? error.message : 'Impossibile caricare i ticket.');
+    }
+  }
+
+  statsFor(eventId: string): EventStats {
+    const event = this.findEvent(eventId);
+    if (event?.stats) {
+      return event.stats;
+    }
+
+    const tickets = this.state().tickets.filter((ticket) => ticket.eventId === eventId);
+    const revenue = tickets.reduce(
+      (total, ticket) => total + (ticket.paymentStatus === 'paid' ? (event?.price ?? 0) : 0),
+      0,
+    );
+
+    return {
+      sold: tickets.length,
+      checkedIn: tickets.filter((ticket) => ticket.checkedIn).length,
+      revenue,
+      remaining: Math.max(0, (event?.capacity ?? 0) - tickets.length),
+    };
+  }
+
+  async createTicket(
+    input: Pick<Ticket, 'eventId' | 'firstName' | 'lastName' | 'birthDate' | 'email' | 'phone'>,
+  ): Promise<Ticket | null> {
+    this.error.set(null);
+
+    try {
+      const response = await fetch('/api/tickets/register', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+      });
+      const payload = await this.readPayload<TicketResponse>(response);
+      if (!response.ok) {
+        this.error.set(payload.error || 'Registrazione non riuscita.');
+        return null;
+      }
+
+      this.state.update((state) => ({ ...state, tickets: [payload.ticket, ...state.tickets] }));
+      await this.refreshEvents();
+      return payload.ticket;
+    } catch (error) {
+      this.error.set(error instanceof Error ? error.message : 'Registrazione non riuscita.');
+      return null;
+    }
+  }
+
+  async saveEvent(event: EventItem): Promise<EventItem | null> {
+    this.error.set(null);
+
+    try {
+      const response = await fetch('/api/admin/events', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event }),
+      });
+      const payload = await this.readPayload<{ event?: EventItem }>(response);
+      if (!response.ok || !payload.event) {
+        this.error.set(this.adminErrorMessage(payload.error));
+        return null;
+      }
+
+      this.state.update((state) => ({
+        ...state,
+        events: state.events.map((item) => (item.id === payload.event?.id ? payload.event : item)),
+      }));
+      return payload.event;
+    } catch (error) {
+      this.error.set(error instanceof Error ? error.message : 'Salvataggio evento non riuscito.');
+      return null;
+    }
+  }
+
+  async createEvent(): Promise<EventItem | null> {
+    this.error.set(null);
+
+    try {
+      const response = await fetch('/api/admin/events', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      const payload = await this.readPayload<{ event?: EventItem }>(response);
+      if (!response.ok || !payload.event) {
+        this.error.set(this.adminErrorMessage(payload.error));
+        return null;
+      }
+
+      this.state.update((state) => ({ ...state, events: [...state.events, payload.event!] }));
+      return payload.event;
+    } catch (error) {
+      this.error.set(error instanceof Error ? error.message : 'Creazione evento non riuscita.');
+      return null;
+    }
+  }
+
+  async deleteEvent(eventId: string): Promise<boolean> {
+    this.error.set(null);
+
+    try {
+      const response = await fetch('/api/admin/events', {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: eventId }),
+      });
+      const payload = await this.readPayload(response);
+      if (!response.ok) {
+        this.error.set(this.adminErrorMessage(payload.error));
+        return false;
+      }
+
+      this.state.update((state) => ({
+        ...state,
+        events: state.events.filter((event) => event.id !== eventId),
+      }));
+      return true;
+    } catch (error) {
+      this.error.set(error instanceof Error ? error.message : 'Eliminazione evento non riuscita.');
+      return false;
+    }
+  }
+
+  private async readPayload<T = Record<string, never>>(
+    response: Response,
+  ): Promise<T & { error?: string }> {
+    const text = await response.text();
+    if (!text) return {} as T & { error?: string };
+
+    try {
+      return JSON.parse(text) as T & { error?: string };
+    } catch {
+      return {
+        error: response.ok
+          ? 'Risposta non valida dal server.'
+          : `Errore server ${response.status}.`,
+      } as T & { error?: string };
+    }
+  }
+
+  private adminErrorMessage(error?: string): string {
+    if (error === 'FORBIDDEN') {
+      return 'Sessione admin scaduta o permessi insufficienti. Esci e rientra con un account admin.';
+    }
+
+    return error || 'Operazione admin non riuscita.';
+  }
+}

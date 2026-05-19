@@ -1,0 +1,154 @@
+<section class="admin-head">
+  <div>
+    <span class="eyebrow">Lezione 1</span>
+    <h1>Admin eventi</h1>
+    <p>Qui impariamo binding, form reattivi, signals e service condivisi.</p>
+  </div>
+  <div class="admin-actions">
+    <a class="btn secondary" routerLink="/events">Torna agli eventi</a>
+    <button class="btn" type="button" (click)="createEvent()">Nuovo evento</button>
+  </div>
+</section>
+
+@if (screen() === 'list') {
+  <section class="panel admin-list-screen">
+    <div class="section-title">
+      <span class="eyebrow">Archivio</span>
+      <h2>Lista eventi</h2>
+    </div>
+    <div class="event-list">
+      @for (event of store.events(); track event.id) {
+        <button
+          class="event-row"
+          [class.active]="event.id === selectedEvent().id"
+          type="button"
+          (click)="selectEvent(event)"
+        >
+          <strong>{{ event.name }}</strong>
+          <span
+            >{{ event.date | date: 'dd/MM/yyyy' }} - {{ store.statsFor(event.id).sold }}/{{
+              event.capacity
+            }}
+            inviti</span
+          >
+          <span>Apri dettaglio evento</span>
+        </button>
+      }
+    </div>
+  </section>
+} @else {
+  <div class="detail-stack">
+    @if (selectedEvent(); as event) {
+      <div class="screen-toolbar">
+        <button class="btn secondary" type="button" (click)="backToList()">
+          Indietro alla lista
+        </button>
+        <span>{{ event.name }}</span>
+      </div>
+
+      <section class="panel stats">
+        <div>
+          <strong>{{ store.statsFor(event.id).sold }}</strong>
+          <span>inviti</span>
+        </div>
+        <div>
+          <strong>{{ store.statsFor(event.id).checkedIn }}</strong>
+          <span>ingressi</span>
+        </div>
+        <div>
+          <strong>{{ store.statsFor(event.id).revenue | currency: 'EUR' }}</strong>
+          <span>incasso demo</span>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-title">
+          <span class="eyebrow">Configurazione</span>
+          <h2>Dettagli evento</h2>
+        </div>
+        <form [formGroup]="eventForm" (ngSubmit)="saveEvent()">
+          <input formControlName="id" type="hidden" />
+          <input formControlName="image" type="hidden" />
+
+          <div class="event-editor">
+            <div class="image-field">
+              <img [src]="eventForm.controls.image.value" alt="Anteprima evento" />
+              <label class="file-picker">
+                <span>Cambia immagine</span>
+                <input type="file" accept="image/*" (change)="updateImage($event)" />
+              </label>
+            </div>
+
+            <div class="form-fields">
+              <label>
+                Nome evento
+                <input formControlName="name" />
+              </label>
+
+              <div class="two">
+                <label>
+                  Data
+                  <input formControlName="date" type="date" />
+                </label>
+                <label>
+                  Ora
+                  <input formControlName="time" type="time" />
+                </label>
+              </div>
+
+              <div class="two">
+                <label>
+                  Citta
+                  <input formControlName="city" />
+                </label>
+                <label>
+                  Luogo
+                  <input formControlName="venue" />
+                </label>
+              </div>
+
+              <div class="two">
+                <label>
+                  Capienza
+                  <input formControlName="capacity" type="number" />
+                </label>
+                <label>
+                  Prezzo
+                  <input formControlName="price" type="number" />
+                </label>
+              </div>
+
+              <label>
+                Descrizione
+                <textarea formControlName="description"></textarea>
+              </label>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn" type="submit" [disabled]="isSaving()">
+              {{ isSaving() ? 'Salvataggio...' : 'Salva evento' }}
+            </button>
+            @if (saveMessage(); as message) {
+              <span class="save-message" [class.error]="store.error() || eventForm.invalid">
+                {{ message }}
+              </span>
+            }
+          </div>
+        </form>
+      </section>
+
+      <section class="panel danger-zone">
+        <div>
+          <h2>Zona eliminazione</h2>
+          <p>
+            Per ora non chiediamo conferma: e un punto che miglioreremo nella lezione sui dialog.
+          </p>
+        </div>
+        <button class="btn danger" type="button" (click)="deleteSelectedEvent()">
+          Elimina evento
+        </button>
+      </section>
+    }
+  </div>
+}

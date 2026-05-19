@@ -1,0 +1,77 @@
+:host {
+  color: #24140b;
+  display: block;
+  min-height: 100vh;
+}
+
+.topbar {
+  align-items: center;
+  background: rgba(63, 22, 7, 0.92);
+  border-bottom: 1px solid rgba(217, 148, 24, 0.28);
+  backdrop-filter: blur(16px);
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  padding: 15px 22px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.brand-mark {
+  border-radius: 50%;
+  height: 38px;
+  object-fit: cover;
+  object-position: center 37%;
+  width: 38px;
+}
+
+.brand strong,
+.brand span {
+  display: block;
+}
+
+.brand strong {
+  color: #fff3d8;
+}
+
+.brand span {
+  color: #e5b261;
+  font-size: 13px;
+}
+
+.tabs {
+  background: rgba(255, 224, 162, 0.1);
+  border: 1px solid rgba(217, 148, 24, 0.28);
+  border-radius: 8px;
+  display: flex;
+  gap: 3px;
+  padding: 4px;
+}
+
+.tabs a {
+  border-radius: 6px;
+  color: #f7d99d;
+  font-weight: 750;
+  min-height: 38px;
+  padding: 9px 13px;
+  text-decoration: none;
+}
+
+.tabs a.active {
+  background: #d99418;
+  box-shadow: 0 2px 12px rgba(217, 148, 24, 0.24);
+  color: #2a1208;
+}
+
+.shell {
+  margin: 0 auto;
+  max-width: 1240px;
+  padding: 0 22px 56px;
+}

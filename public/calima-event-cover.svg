@@ -1,0 +1,29 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Calima event cover">
+  <defs>
+    <linearGradient id="sky" x1="234" y1="0" x2="1378" y2="944" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0E5257"/>
+      <stop offset="0.46" stop-color="#7A2C08"/>
+      <stop offset="1" stop-color="#2A1208"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(498 346) rotate(90) scale(260)">
+      <stop stop-color="#F3A51D"/>
+      <stop offset="1" stop-color="#D99418" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="grain" x="0" y="0" width="1600" height="900" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="12"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncA type="table" tableValues="0 0.08"/>
+      </feComponentTransfer>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <rect width="1600" height="900" fill="url(#sun)" opacity="0.9"/>
+  <path d="M0 640C214 584 358 618 544 690C750 770 957 790 1167 724C1322 675 1455 642 1600 670V900H0V640Z" fill="#2A1208" opacity="0.76"/>
+  <path d="M0 726C241 652 480 700 688 762C892 823 1067 838 1276 760C1390 717 1494 704 1600 716V900H0V726Z" fill="#190904" opacity="0.72"/>
+  <circle cx="498" cy="346" r="126" fill="#D99418" opacity="0.72"/>
+  <path d="M985 356C1078 327 1183 346 1264 406C1151 388 1064 399 985 356Z" fill="#F7D99D" opacity="0.42"/>
+  <path d="M948 438C1089 410 1247 432 1382 516C1205 490 1060 502 948 438Z" fill="#F7D99D" opacity="0.28"/>
+  <path d="M248 498C335 456 443 456 546 515C427 497 339 522 248 498Z" fill="#F7D99D" opacity="0.3"/>
+  <rect width="1600" height="900" filter="url(#grain)" opacity="0.45"/>
+</svg>
