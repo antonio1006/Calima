@@ -109,7 +109,7 @@
 
 .hero-logo-letters {
   fill: #f3a51d;
-  height: 100px;
+  max-width: 100px;
 }
 
 .hero-copy h1 {
