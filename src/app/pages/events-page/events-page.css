@@ -110,7 +110,8 @@
 .hero-logo-letters {
   display: block;
   color: #f3a51d;
-  width: 400px;
+  width: 380px;
+  margin-bottom: -3px;
 }
 
 .hero-copy h1 {
@@ -391,6 +392,11 @@ input {
     padding: 24px 16px 18px;
   }
 
+  .hero-logo-letters {
+    height: 240px;
+    width: 240px;
+  }
+
   .calima-hero::after {
     background: linear-gradient(180deg, rgba(42, 18, 8, 0), #2a1208 88%);
     height: 180px;
@@ -557,6 +563,11 @@ input {
   .hero-logo {
     height: 58px;
     width: 58px;
+  }
+
+  .hero-logo-letters {
+    height: 200px;
+    width: 200px;
   }
 
   .hero-panel {
