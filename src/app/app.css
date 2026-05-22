@@ -32,6 +32,11 @@
   width: 38px;
 }
 
+.brand-mark-letter {
+  height: 38px;
+  margin-top: 5px;
+}
+
 .brand strong,
 .brand span {
   display: block;

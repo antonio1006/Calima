@@ -107,6 +107,12 @@
   width: clamp(96px, 14vw, 160px);
 }
 
+.hero-logo-letters {
+  fill: #f3a51d;
+  height: clamp(96px, 14vw, 160px);
+  width: clamp(96px, 14vw, 160px);
+}
+
 .hero-copy h1 {
   color: #f3a51d;
   font-size: clamp(72px, 15vw, 168px);
@@ -416,6 +422,11 @@ input {
     width: 66px;
   }
 
+  .hero-logo-letters {
+    height: 66px;
+    width: 66px;
+  }
+
   .hero-copy h1 {
     font-size: clamp(58px, 22vw, 86px);
     margin: 4px 0 10px;
@@ -549,6 +560,11 @@ input {
   }
 
   .hero-logo {
+    height: 58px;
+    width: 58px;
+  }
+
+  .hero-logo-letter {
     height: 58px;
     width: 58px;
   }
