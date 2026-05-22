@@ -394,7 +394,7 @@ input {
   }
 
   .hero-logo-letters {
-    height: 180px;
+    width: 180px;
   }
 
   .calima-hero::after {
@@ -566,7 +566,7 @@ input {
   }
 
   .hero-logo-letters {
-    height: 90px;
+    width: 120px;
   }
 
   .hero-panel {
