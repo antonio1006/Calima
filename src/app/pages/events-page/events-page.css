@@ -111,7 +111,7 @@
   display: block;
   color: #f3a51d;
   width: 380px;
-  margin-bottom: -3px;
+  margin-bottom: -8px;
 }
 
 .hero-copy h1 {
@@ -393,8 +393,7 @@ input {
   }
 
   .hero-logo-letters {
-    height: 1800px;
-    width: 1800px;
+    height: 180px;
   }
 
   .calima-hero::after {
@@ -567,7 +566,6 @@ input {
 
   .hero-logo-letters {
     height: 120px;
-    width: 120px;
   }
 
   .hero-panel {
