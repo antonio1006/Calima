@@ -108,8 +108,9 @@
 }
 
 .hero-logo-letters {
-  fill: #f3a51d;
-  width: 200px;
+  display: block;
+  color: #f3a51d;
+  width: 400px;
 }
 
 .hero-copy h1 {
@@ -418,11 +419,6 @@ input {
   .hero-logo {
     height: 66px;
     margin-bottom: 12px;
-    width: 66px;
-  }
-
-  .hero-logo-letters {
-    height: 66px;
     width: 66px;
   }
 
