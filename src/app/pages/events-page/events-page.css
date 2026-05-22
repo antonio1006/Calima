@@ -112,6 +112,7 @@
   color: #f3a51d;
   width: 380px;
   margin-bottom: -8px;
+  margin-top: 2px;
 }
 
 .hero-copy h1 {
@@ -565,7 +566,7 @@ input {
   }
 
   .hero-logo-letters {
-    height: 120px;
+    height: 90px;
   }
 
   .hero-panel {
