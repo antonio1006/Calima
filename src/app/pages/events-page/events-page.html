@@ -34,10 +34,10 @@
           <strong>{{ event.price | currency: 'EUR' }}</strong>
           <span>ticket</span>
         </div>
-        <div class="hero-actions">
-          <a class="btn" [routerLink]="['/events', event.id]">Scopri la serata</a>
-          <span>{{ event.date | date: 'dd MMMM yyyy' }} - {{ event.time }}</span>
-        </div>
+      </div>
+      <div class="hero-actions">
+        <a class="btn" [routerLink]="['/events', event.id]">Scopri la serata</a>
+        <span>{{ event.date | date: 'dd MMMM yyyy' }} - {{ event.time }}</span>
       </div>
     </aside>
   </section>
