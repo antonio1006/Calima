@@ -329,6 +329,10 @@
   line-height: 1.55;
 }
 
+.event-story p {
+  white-space: pre-line;
+}
+
 .info-grid {
   display: grid;
   gap: 10px;

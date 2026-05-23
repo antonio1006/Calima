@@ -32,6 +32,7 @@
   height: 100%;
   inset: 0;
   object-fit: cover;
+  object-position: center;
   position: absolute;
   width: 100%;
   z-index: -2;
@@ -75,6 +76,11 @@
   color: rgba(249, 231, 195, 0.84);
   line-height: 1.55;
   margin: 0;
+}
+
+.detail-copy p,
+.event-body p {
+  white-space: pre-line;
 }
 
 .detail-copy p {

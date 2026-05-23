@@ -20,6 +20,7 @@ export class EventDetailPage {
   readonly registerSucceeded = signal(false);
   readonly eventId = computed(() => this.route.snapshot.paramMap.get('id') ?? '');
   readonly event = computed(() => this.store.findEvent(this.eventId()));
+  readonly fallbackImage = '/calima-logo.webp';
 
   readonly registrationForm = this.formBuilder.nonNullable.group({
     eventId: ['', Validators.required],
@@ -68,5 +69,12 @@ export class EventDetailPage {
     });
     this.registerSucceeded.set(true);
     this.registerMessage.set(`Registrazione completata. Ticket ${ticket.id}`);
+  }
+
+  useFallbackImage(event: Event): void {
+    const image = event.target as HTMLImageElement;
+    if (image.src.includes(this.fallbackImage)) return;
+
+    image.src = this.fallbackImage;
   }
 }

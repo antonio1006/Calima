@@ -76,7 +76,7 @@ module.exports = async function handler(req, res) {
           venue: 'Location',
           capacity: 100,
           price_cents: 0,
-          image_path: '/calima-event-cover.svg',
+          image_path: '/calima-logo.webp',
           description: 'Descrizione evento.',
           is_published: true,
         })

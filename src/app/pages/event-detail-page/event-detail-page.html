@@ -1,14 +1,18 @@
 @if (event(); as event) {
   <section class="detail-hero">
-    <img [src]="event.image" [alt]="event.name" />
+    <img
+      [src]="event.image || fallbackImage"
+      [alt]="event.name"
+      (error)="useFallbackImage($event)"
+    />
     <div class="detail-shade"></div>
     <div class="detail-copy">
-      <a class="back-link" routerLink="/events">Tutte le serate</a>
       <span class="eyebrow">{{ event.venue }} - {{ event.city }}</span>
       <h1>{{ event.name }}</h1>
-      <p>{{ event.description }}</p>
     </div>
   </section>
+
+  <a class="back-link" routerLink="/events">Tutte le serate</a>
 
   <section class="detail-grid">
     <div class="panel event-body">

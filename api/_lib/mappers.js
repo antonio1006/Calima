@@ -6,6 +6,15 @@ function centsToMoney(value) {
   return Number(value || 0) / 100;
 }
 
+function toImageUrl(value) {
+  if (!value) return '/calima-logo.webp';
+  if (value.startsWith('http') || value.startsWith('/') || value.startsWith('data:image/')) {
+    return value;
+  }
+
+  return `/${value}`;
+}
+
 function toAppEvent(row, stats) {
   return {
     id: row.id,
@@ -16,7 +25,7 @@ function toAppEvent(row, stats) {
     venue: row.venue,
     capacity: row.capacity,
     price: centsToMoney(row.price_cents),
-    image: row.image_path || '/calima-event-cover.svg',
+    image: toImageUrl(row.image_path),
     description: row.description,
     stats,
   };
@@ -31,7 +40,7 @@ function toDbEvent(event) {
     venue: event.venue,
     capacity: Number(event.capacity),
     price_cents: moneyToCents(event.price),
-    image_path: event.image || '/calima-event-cover.svg',
+    image_path: event.image || '/calima-logo.webp',
     description: event.description,
     is_published: true,
   };
