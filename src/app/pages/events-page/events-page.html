@@ -20,10 +20,6 @@
       <img class="hero-logo" src="/calima-logo.webp" alt="Calima logo" />
       <span class="eyebrow">Tenerife movement</span>
       <img class="hero-logo-letters" src="Scritta_Calima.png" alt="Calima" />
-      <div class="hero-actions">
-        <a class="btn" [routerLink]="['/events', event.id]">Scopri la serata</a>
-        <span>{{ event.date | date: 'dd MMMM yyyy' }} - {{ event.time }}</span>
-      </div>
     </div>
     <aside class="hero-panel" aria-label="Serata in programma">
       <span>Prossima serata</span>
@@ -37,6 +33,10 @@
         <div>
           <strong>{{ event.price | currency: 'EUR' }}</strong>
           <span>ticket</span>
+        </div>
+        <div class="hero-actions">
+          <a class="btn" [routerLink]="['/events', event.id]">Scopri la serata</a>
+          <span>{{ event.date | date: 'dd MMMM yyyy' }} - {{ event.time }}</span>
         </div>
       </div>
     </aside>
