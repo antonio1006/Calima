@@ -1,0 +1,263 @@
+:host {
+  color: #f9e7c3;
+  display: grid;
+  gap: 22px;
+}
+
+.detail-hero,
+.empty-detail {
+  background:
+    linear-gradient(90deg, rgba(42, 18, 8, 0.94), rgba(95, 35, 8, 0.72), rgba(14, 82, 87, 0.24)),
+    url('/calima-logo.webp');
+  background-position: center;
+  background-size: cover;
+  border: 1px solid rgba(217, 148, 24, 0.32);
+  border-radius: 8px;
+  box-shadow: 0 22px 60px rgba(17, 8, 3, 0.28);
+  min-height: min(680px, calc(100svh - 110px));
+  overflow: hidden;
+  position: relative;
+}
+
+.detail-hero {
+  align-items: end;
+  display: grid;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding: clamp(34px, 7vw, 82px);
+  width: 100vw;
+}
+
+.detail-hero > img {
+  height: 100%;
+  inset: 0;
+  object-fit: cover;
+  position: absolute;
+  width: 100%;
+  z-index: -2;
+}
+
+.detail-shade {
+  background:
+    linear-gradient(90deg, rgba(42, 18, 8, 0.9), rgba(42, 18, 8, 0.42), rgba(42, 18, 8, 0.18)),
+    linear-gradient(0deg, rgba(42, 18, 8, 0.86), rgba(42, 18, 8, 0.06) 58%);
+  inset: 0;
+  position: absolute;
+  z-index: -1;
+}
+
+.detail-copy {
+  max-width: 820px;
+}
+
+.back-link {
+  color: #f7d99d;
+  display: inline-flex;
+  font-weight: 900;
+  margin-bottom: 18px;
+  text-decoration: none;
+}
+
+.detail-copy h1,
+.empty-detail h1 {
+  color: #f3a51d;
+  font-size: clamp(48px, 10vw, 124px);
+  letter-spacing: 0;
+  line-height: 0.88;
+  margin: 10px 0 18px;
+  text-transform: uppercase;
+}
+
+.detail-copy p,
+.empty-detail p,
+.booking-panel p,
+.event-body p {
+  color: rgba(249, 231, 195, 0.84);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.detail-copy p {
+  font-size: clamp(18px, 2vw, 24px);
+  max-width: 720px;
+}
+
+.detail-grid {
+  align-items: start;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  margin-bottom: 34px;
+}
+
+.panel {
+  background: rgba(58, 21, 8, 0.84);
+  border: 1px solid rgba(217, 148, 24, 0.34);
+  border-radius: 8px;
+  box-shadow: 0 22px 60px rgba(17, 8, 3, 0.28);
+  padding: 24px;
+}
+
+.panel h2 {
+  color: #fff3d8;
+  font-size: 36px;
+  letter-spacing: 0;
+  margin: 8px 0 16px;
+}
+
+.eyebrow {
+  color: #f3a51d;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.info-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 24px;
+}
+
+.info-grid div {
+  background: rgba(255, 229, 176, 0.1);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.info-grid strong,
+.info-grid span {
+  display: block;
+}
+
+.info-grid strong {
+  color: #fff3d8;
+}
+
+.info-grid span {
+  color: #e5b261;
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+.booking-panel {
+  position: sticky;
+  top: 92px;
+}
+
+form,
+.form-row {
+  display: grid;
+  gap: 12px;
+}
+
+form {
+  margin-top: 18px;
+}
+
+.form-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+label {
+  color: #e5b261;
+  display: grid;
+  font-size: 13px;
+  font-weight: 800;
+  gap: 7px;
+}
+
+input {
+  background: rgba(255, 243, 216, 0.96);
+  border: 1px solid rgba(217, 148, 24, 0.48);
+  border-radius: 7px;
+  color: #24140b;
+  min-height: 46px;
+  padding: 10px 11px;
+}
+
+.btn {
+  align-items: center;
+  background: #d99418;
+  border: 0;
+  border-radius: 7px;
+  color: #2a1208;
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 900;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 18px;
+  text-decoration: none;
+}
+
+.btn:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.wide {
+  width: 100%;
+}
+
+.form-message {
+  color: #ff9aaa;
+  font-weight: 800;
+  margin: 0;
+}
+
+.form-message.ok {
+  color: #95e0ad;
+}
+
+.empty-detail {
+  align-content: center;
+  display: grid;
+  padding: clamp(28px, 7vw, 82px);
+}
+
+@media (max-width: 920px) {
+  .detail-grid,
+  .info-grid,
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-hero {
+    min-height: min(660px, calc(100svh - 64px));
+    padding: 28px 16px 22px;
+  }
+
+  .detail-hero > img {
+    height: 62%;
+    object-position: center top;
+  }
+
+  .detail-shade {
+    background:
+      linear-gradient(180deg, rgba(42, 18, 8, 0.08) 0%, rgba(42, 18, 8, 0.22) 38%, #2a1208 70%),
+      linear-gradient(90deg, rgba(42, 18, 8, 0.56), rgba(42, 18, 8, 0.08));
+  }
+
+  .detail-copy h1,
+  .empty-detail h1 {
+    font-size: clamp(46px, 17vw, 78px);
+  }
+
+  .detail-copy p {
+    font-size: 15px;
+  }
+
+  .booking-panel {
+    position: static;
+  }
+
+  .panel {
+    padding: 18px;
+  }
+
+  .panel h2 {
+    font-size: 30px;
+  }
+}

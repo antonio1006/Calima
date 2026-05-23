@@ -1,36 +1,26 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  ViewChild,
-  computed,
-  effect,
-  inject,
-  signal,
-} from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-import { EventItem } from '../../models/event.model';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { EventStore } from '../../services/event-store';
 
 @Component({
-  selector: 'app-events-page',
+  selector: 'app-event-detail-page',
   imports: [CurrencyPipe, DatePipe, ReactiveFormsModule, RouterLink],
-  templateUrl: './events-page.html',
-  styleUrl: './events-page.css',
+  templateUrl: './event-detail-page.html',
+  styleUrl: './event-detail-page.css',
 })
-export class EventsPage {
+export class EventDetailPage {
   private readonly formBuilder = inject(FormBuilder);
-  @ViewChild('heroVideo') private readonly heroVideo?: ElementRef<HTMLVideoElement>;
-
+  private readonly route = inject(ActivatedRoute);
   readonly store = inject(EventStore);
+
   readonly isRegistering = signal(false);
   readonly registerMessage = signal<string | null>(null);
   readonly registerSucceeded = signal(false);
+  readonly eventId = computed(() => this.route.snapshot.paramMap.get('id') ?? '');
+  readonly event = computed(() => this.store.findEvent(this.eventId()));
 
-  readonly events = this.store.events;
-  readonly mainEvent = computed(() => this.events()[0]);
   readonly registrationForm = this.formBuilder.nonNullable.group({
     eventId: ['', Validators.required],
     firstName: ['', Validators.required],
@@ -42,20 +32,11 @@ export class EventsPage {
 
   constructor() {
     effect(() => {
-      const event = this.mainEvent();
-      if (event && !this.registrationForm.controls.eventId.value) {
+      const event = this.event();
+      if (event) {
         this.registrationForm.patchValue({ eventId: event.id });
       }
     });
-  }
-
-  ngAfterViewInit(): void {
-    this.playHeroVideo();
-    window.setTimeout(() => this.playHeroVideo(), 350);
-  }
-
-  selectEvent(event: EventItem): void {
-    this.registrationForm.patchValue({ eventId: event.id });
   }
 
   async register(): Promise<void> {
@@ -71,6 +52,7 @@ export class EventsPage {
     this.isRegistering.set(true);
     const ticket = await this.store.createTicket(this.registrationForm.getRawValue());
     this.isRegistering.set(false);
+
     if (!ticket) {
       this.registerMessage.set(this.store.error() || 'Registrazione non riuscita.');
       return;
@@ -86,24 +68,5 @@ export class EventsPage {
     });
     this.registerSucceeded.set(true);
     this.registerMessage.set(`Registrazione completata. Ticket ${ticket.id}`);
-  }
-
-  playHeroVideo(): void {
-    const video = this.heroVideo?.nativeElement;
-    if (!video) return;
-
-    video.muted = true;
-    video.defaultMuted = true;
-    video.playsInline = true;
-    video.setAttribute('muted', '');
-    video.setAttribute('playsinline', '');
-    video.setAttribute('webkit-playsinline', '');
-
-    const playAttempt = video.play();
-    if (playAttempt) {
-      playAttempt.catch(() => {
-        // Safari can still reject autoplay in low-power or strict privacy modes.
-      });
-    }
   }
 }

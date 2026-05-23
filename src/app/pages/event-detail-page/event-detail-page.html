@@ -1,0 +1,103 @@
+@if (event(); as event) {
+  <section class="detail-hero">
+    <img [src]="event.image" [alt]="event.name" />
+    <div class="detail-shade"></div>
+    <div class="detail-copy">
+      <a class="back-link" routerLink="/events">Tutte le serate</a>
+      <span class="eyebrow">{{ event.venue }} - {{ event.city }}</span>
+      <h1>{{ event.name }}</h1>
+      <p>{{ event.description }}</p>
+    </div>
+  </section>
+
+  <section class="detail-grid">
+    <div class="panel event-body">
+      <span class="eyebrow">Dettagli</span>
+      <h2>La serata</h2>
+      <p>{{ event.description }}</p>
+
+      <div class="info-grid">
+        <div>
+          <strong>{{ event.date | date: 'dd MMMM yyyy' }}</strong>
+          <span>Data</span>
+        </div>
+        <div>
+          <strong>{{ event.time }}</strong>
+          <span>Orario</span>
+        </div>
+        <div>
+          <strong>{{ event.venue }}</strong>
+          <span>Location</span>
+        </div>
+        <div>
+          <strong>{{ store.statsFor(event.id).remaining }}</strong>
+          <span>Posti rimasti</span>
+        </div>
+        <div>
+          <strong>{{ event.price | currency: 'EUR' }}</strong>
+          <span>Ingresso</span>
+        </div>
+        <div>
+          <strong>{{ event.capacity }}</strong>
+          <span>Capienza</span>
+        </div>
+      </div>
+    </div>
+
+    <aside class="panel booking-panel" id="prenota">
+      <span class="eyebrow">Registrazione</span>
+      <h2>Riserva il tuo ingresso</h2>
+      <p>Compila i dati e riceverai la conferma via email con il codice ticket.</p>
+
+      <form [formGroup]="registrationForm" (ngSubmit)="register()">
+        <input formControlName="eventId" type="hidden" />
+
+        <div class="form-row">
+          <label>
+            Nome
+            <input formControlName="firstName" autocomplete="given-name" />
+          </label>
+
+          <label>
+            Cognome
+            <input formControlName="lastName" autocomplete="family-name" />
+          </label>
+        </div>
+
+        <label>
+          Data di nascita
+          <input formControlName="birthDate" type="date" />
+        </label>
+
+        <label>
+          Email
+          <input formControlName="email" type="email" autocomplete="email" />
+        </label>
+
+        <label>
+          Cellulare
+          <input formControlName="phone" type="tel" autocomplete="tel" inputmode="tel" />
+        </label>
+
+        <button class="btn wide" type="submit" [disabled]="isRegistering()">
+          {{ isRegistering() ? 'Registrazione...' : 'Completa registrazione' }}
+        </button>
+
+        @if (registerMessage(); as message) {
+          <p class="form-message" [class.ok]="registerSucceeded()">{{ message }}</p>
+        }
+      </form>
+    </aside>
+  </section>
+} @else {
+  <section class="empty-detail">
+    <a class="back-link" routerLink="/events">Tutte le serate</a>
+    @if (store.isLoading()) {
+      <h1>Caricamento serata</h1>
+      <p>Stiamo recuperando i dettagli.</p>
+    } @else {
+      <h1>Serata non trovata</h1>
+      <p>Questa serata non è disponibile o non è più pubblicata.</p>
+    }
+  </section>
+}

@@ -21,7 +21,7 @@
       <span class="eyebrow">Tenerife movement</span>
       <img class="hero-logo-letters" src="Scritta_Calima.png" alt="Calima" />
       <div class="hero-actions">
-        <a class="btn" href="#ticket">Prenota il tuo ingresso</a>
+        <a class="btn" [routerLink]="['/events', event.id]">Scopri la serata</a>
         <span>{{ event.date | date: 'dd MMMM yyyy' }} - {{ event.time }}</span>
       </div>
     </div>
@@ -41,6 +41,28 @@
       </div>
     </aside>
   </section>
+
+  @if (events().length > 1) {
+    <section class="event-catalog" aria-labelledby="event-catalog-title">
+      <div class="catalog-head">
+        <span class="eyebrow">Calendario</span>
+        <h2 id="event-catalog-title">Le prossime serate</h2>
+      </div>
+      <div class="event-cards">
+        @for (item of events(); track item.id) {
+          <article class="event-card">
+            <img [src]="item.image" [alt]="item.name" />
+            <div>
+              <span class="eyebrow">{{ item.date | date: 'dd MMMM yyyy' }} - {{ item.time }}</span>
+              <h3>{{ item.name }}</h3>
+              <p>{{ item.venue }}, {{ item.city }}</p>
+              <a class="btn secondary" [routerLink]="['/events', item.id]">Apri dettaglio</a>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+  }
 
   <section class="manifesto">
     <div>
@@ -78,6 +100,7 @@
             <span>Capienza</span>
           </div>
         </div>
+        <a class="btn detail-link" [routerLink]="['/events', event.id]">Pagina dettagli</a>
       </div>
     </div>
 
