@@ -7,7 +7,7 @@ async function sendTicketEmail({ ticket, event }) {
 
   const siteUrl = process.env.PUBLIC_SITE_URL || 'https://calima.it';
   const fullName = `${ticket.firstName} ${ticket.lastName}`.trim();
-  const subject = `Il tuo ingresso Calima - ${event.name}`;
+  const subject = `Richiesta ricevuta Calima - ${event.name}`;
 
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -24,9 +24,10 @@ async function sendTicketEmail({ ticket, event }) {
           <div style="max-width:620px;margin:0 auto;background:#3a1508;border:1px solid #d99418;border-radius:8px;padding:24px">
             <h1 style="color:#f3a51d;margin:0 0 12px">Calima</h1>
             <p>Ciao ${fullName || 'ospite'},</p>
-            <p>la tua registrazione per <strong>${event.name}</strong> e stata ricevuta.</p>
+            <p>la tua richiesta per <strong>${event.name}</strong> e stata ricevuta.</p>
+            <p>La lista viene confermata dall'organizzazione: riceverai aggiornamenti quando la richiesta sara gestita.</p>
             <p>
-              <strong>Codice ticket:</strong><br>
+              <strong>Codice richiesta:</strong><br>
               <span style="font-size:24px;color:#f3a51d">${ticket.id}</span>
             </p>
             <p><strong>Data:</strong> ${event.date} - ${event.time}</p>

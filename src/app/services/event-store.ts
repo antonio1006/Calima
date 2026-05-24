@@ -1,5 +1,5 @@
 import { computed, Injectable, signal } from '@angular/core';
-import { EventItem, EventStats, Ticket } from '../models/event.model';
+import { EventItem, EventStats, Ticket, TicketStatus } from '../models/event.model';
 
 interface AppState {
   events: EventItem[];
@@ -12,6 +12,10 @@ interface EventsResponse {
 
 interface TicketResponse {
   ticket: Ticket;
+}
+
+interface TicketsResponse {
+  tickets: Ticket[];
 }
 
 const emptyStats: EventStats = {
@@ -96,16 +100,17 @@ export class EventStore {
     }
 
     const tickets = this.state().tickets.filter((ticket) => ticket.eventId === eventId);
-    const revenue = tickets.reduce(
+    const activeTickets = tickets.filter((ticket) => this.isAcceptedTicket(ticket.paymentStatus));
+    const revenue = activeTickets.reduce(
       (total, ticket) => total + (ticket.paymentStatus === 'paid' ? (event?.price ?? 0) : 0),
       0,
     );
 
     return {
-      sold: tickets.length,
-      checkedIn: tickets.filter((ticket) => ticket.checkedIn).length,
+      sold: activeTickets.length,
+      checkedIn: activeTickets.filter((ticket) => ticket.checkedIn).length,
       revenue,
-      remaining: Math.max(0, (event?.capacity ?? 0) - tickets.length),
+      remaining: Math.max(0, (event?.capacity ?? 0) - activeTickets.length),
     };
   }
 
@@ -133,6 +138,118 @@ export class EventStore {
     } catch (error) {
       this.error.set(error instanceof Error ? error.message : 'Registrazione non riuscita.');
       return null;
+    }
+  }
+
+  async loadEventTickets(eventId: string): Promise<void> {
+    if (!eventId) return;
+
+    try {
+      const response = await fetch(`/api/admin/tickets?eventId=${encodeURIComponent(eventId)}`, {
+        credentials: 'include',
+      });
+      const payload = await this.readPayload<TicketsResponse>(response);
+      if (!response.ok) {
+        this.error.set(this.adminErrorMessage(payload.error));
+        return;
+      }
+
+      this.state.update((state) => ({
+        ...state,
+        tickets: [
+          ...(payload.tickets || []),
+          ...state.tickets.filter((ticket) => ticket.eventId !== eventId),
+        ],
+      }));
+    } catch (error) {
+      this.error.set(error instanceof Error ? error.message : 'Impossibile caricare la lista.');
+    }
+  }
+
+  async adminAddTicket(
+    input: Pick<Ticket, 'eventId' | 'firstName' | 'lastName' | 'birthDate' | 'email' | 'phone'>,
+  ): Promise<Ticket | null> {
+    this.error.set(null);
+
+    try {
+      const response = await fetch('/api/admin/tickets', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+      });
+      const payload = await this.readPayload<TicketResponse>(response);
+      if (!response.ok || !payload.ticket) {
+        this.error.set(this.ticketErrorMessage(payload.error));
+        return null;
+      }
+
+      this.state.update((state) => ({ ...state, tickets: [payload.ticket, ...state.tickets] }));
+      await this.refreshEvents(true);
+      return payload.ticket;
+    } catch (error) {
+      this.error.set(error instanceof Error ? error.message : 'Aggiunta in lista non riuscita.');
+      return null;
+    }
+  }
+
+  async adminUpdateTicketStatus(ticketId: string, status: TicketStatus): Promise<Ticket | null> {
+    this.error.set(null);
+
+    try {
+      const response = await fetch('/api/admin/tickets', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: ticketId, status }),
+      });
+      const payload = await this.readPayload<TicketResponse>(response);
+      if (!response.ok || !payload.ticket) {
+        this.error.set(this.ticketErrorMessage(payload.error));
+        return null;
+      }
+
+      this.state.update((state) => ({
+        ...state,
+        tickets: state.tickets.map((ticket) =>
+          ticket.id === payload.ticket?.id ? payload.ticket : ticket,
+        ),
+      }));
+      await this.refreshEvents(true);
+      return payload.ticket;
+    } catch (error) {
+      this.error.set(error instanceof Error ? error.message : 'Aggiornamento lista non riuscito.');
+      return null;
+    }
+  }
+
+  async adminDeleteTicket(ticketId: string): Promise<boolean> {
+    this.error.set(null);
+
+    try {
+      const response = await fetch('/api/admin/tickets', {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: ticketId }),
+      });
+      const payload = await this.readPayload(response);
+      if (!response.ok) {
+        this.error.set(this.ticketErrorMessage(payload.error));
+        return false;
+      }
+
+      this.state.update((state) => ({
+        ...state,
+        tickets: state.tickets.filter((ticket) => ticket.id !== ticketId),
+      }));
+      await this.refreshEvents(true);
+      return true;
+    } catch (error) {
+      this.error.set(
+        error instanceof Error ? error.message : 'Rimozione dalla lista non riuscita.',
+      );
+      return false;
     }
   }
 
@@ -239,13 +356,22 @@ export class EventStore {
 
   private ticketErrorMessage(error?: string): string {
     const messages: Record<string, string> = {
+      EMAIL_MISMATCH: 'Usa la stessa email del tuo account Calima.',
       EVENT_NOT_FOUND: 'Evento non trovato o non ancora pubblicato.',
       EVENT_SOLD_OUT: 'I posti per questo evento sono terminati.',
       INVALID_EVENT_ID: 'Evento non valido. Ricarica la pagina e riprova.',
+      INVALID_TICKET_STATUS: 'Stato lista non valido.',
+      LOGIN_REQUIRED: 'Accedi o crea un account Calima prima di richiedere la partecipazione.',
       MISSING_FIELDS: 'Compila tutti i campi richiesti.',
+      TICKET_ALREADY_EXISTS: 'Hai gia una richiesta attiva per questo evento.',
+      TICKET_NOT_FOUND: 'Persona non trovata in lista.',
       TICKET_NOT_CREATED: 'Non siamo riusciti a creare il ticket.',
     };
 
     return error ? (messages[error] ?? error) : 'Registrazione non riuscita.';
+  }
+
+  private isAcceptedTicket(status: TicketStatus): boolean {
+    return status === 'accepted' || status === 'paid';
   }
 }

@@ -63,6 +63,7 @@ function toAppTicket(row) {
 
 function buildStats(events, tickets) {
   const stats = new Map();
+  const activeStatuses = new Set(['accepted', 'paid']);
 
   for (const event of events) {
     stats.set(event.id, {
@@ -76,7 +77,7 @@ function buildStats(events, tickets) {
   for (const ticket of tickets) {
     const item = stats.get(ticket.event_id);
     const event = events.find((candidate) => candidate.id === ticket.event_id);
-    if (!item || !event || ticket.payment_status === 'cancelled') continue;
+    if (!item || !event || !activeStatuses.has(ticket.payment_status)) continue;
 
     item.sold += 1;
     item.checkedIn += ticket.checked_in ? 1 : 0;

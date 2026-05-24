@@ -31,10 +31,18 @@ module.exports = async function handler(req, res) {
     }
 
     const profile = await currentProfile(req);
+    if (!profile) {
+      return json(res, 401, { error: 'LOGIN_REQUIRED' });
+    }
+
+    if (input.email !== profile.email) {
+      return json(res, 400, { error: 'EMAIL_MISMATCH' });
+    }
+
     const supabase = adminClient();
     const { data: ticketRow, error: ticketError } = await supabase.rpc('create_ticket_atomic', {
       p_event_id: input.eventId,
-      p_profile_id: profile?.id || null,
+      p_profile_id: profile.id,
       p_first_name: input.firstName,
       p_last_name: input.lastName,
       p_birth_date: input.birthDate,
@@ -76,6 +84,10 @@ function normalizeTicketError(message = '') {
 
   if (message.includes('EVENT_SOLD_OUT')) {
     return 'EVENT_SOLD_OUT';
+  }
+
+  if (message.includes('TICKET_ALREADY_EXISTS')) {
+    return 'TICKET_ALREADY_EXISTS';
   }
 
   if (message.includes('invalid input syntax for type uuid')) {

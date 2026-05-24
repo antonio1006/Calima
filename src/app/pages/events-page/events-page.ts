@@ -85,7 +85,7 @@ export class EventsPage {
       phone: '',
     });
     this.registerSucceeded.set(true);
-    this.registerMessage.set(`Registrazione completata. Ticket ${ticket.id}`);
+    this.registerMessage.set(`Richiesta inviata. L'admin dovra approvarla prima dell'ingresso.`);
   }
 
   playHeroVideo(): void {

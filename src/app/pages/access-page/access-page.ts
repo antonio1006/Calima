@@ -109,6 +109,22 @@ export class AccessPage {
     return this.store.findEvent(ticket.eventId)?.price ?? 0;
   }
 
+  ticketStatusLabel(ticket: Ticket): string {
+    const labels: Record<Ticket['paymentStatus'], string> = {
+      accepted: 'Accettato',
+      cancelled: 'Cancellato',
+      paid: 'Accettato',
+      pending: 'In attesa',
+      refunded: 'Rimborsato',
+      rejected: 'Rifiutato',
+    };
+    return labels[ticket.paymentStatus];
+  }
+
+  isTicketAccepted(ticket: Ticket): boolean {
+    return ticket.paymentStatus === 'accepted' || ticket.paymentStatus === 'paid';
+  }
+
   privileges(role: UserRole): string[] {
     if (role === 'admin') {
       return [

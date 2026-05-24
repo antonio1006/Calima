@@ -44,11 +44,15 @@
       <section class="panel stats">
         <div>
           <strong>{{ store.statsFor(event.id).sold }}</strong>
-          <span>inviti</span>
+          <span>in lista</span>
         </div>
         <div>
           <strong>{{ store.statsFor(event.id).checkedIn }}</strong>
           <span>ingressi</span>
+        </div>
+        <div>
+          <strong>{{ pendingTickets() }}</strong>
+          <span>da approvare</span>
         </div>
         <div>
           <strong>{{ store.statsFor(event.id).revenue | currency: 'EUR' }}</strong>
@@ -131,6 +135,106 @@
             }
           </div>
         </form>
+      </section>
+
+      <section class="panel people-panel">
+        <div class="section-title">
+          <span class="eyebrow">Lista persone</span>
+          <h2>Richieste e ingressi</h2>
+        </div>
+
+        <form class="guest-form" [formGroup]="guestForm" (ngSubmit)="addGuest()">
+          <div class="two">
+            <label>
+              Nome
+              <input formControlName="firstName" />
+            </label>
+            <label>
+              Cognome
+              <input formControlName="lastName" />
+            </label>
+          </div>
+          <div class="three">
+            <label>
+              Data nascita
+              <input formControlName="birthDate" type="date" />
+            </label>
+            <label>
+              Email
+              <input formControlName="email" type="email" />
+            </label>
+            <label>
+              Telefono
+              <input formControlName="phone" />
+            </label>
+          </div>
+          <div class="actions">
+            <button class="btn" type="submit" [disabled]="isTicketSaving()">
+              Aggiungi in lista
+            </button>
+            @if (ticketMessage(); as message) {
+              <span class="save-message" [class.error]="store.error()">{{ message }}</span>
+            }
+          </div>
+        </form>
+
+        @if (eventTickets().length) {
+          <div class="people-list">
+            @for (ticket of eventTickets(); track ticket.id) {
+              <article class="person-row" [class.pending-row]="ticket.paymentStatus === 'pending'">
+                <div class="person-main">
+                  <strong>{{ ticket.firstName }} {{ ticket.lastName }}</strong>
+                  <span>{{ ticket.email }} - {{ ticket.phone }}</span>
+                  <span>{{ ticket.id }} - {{ ticket.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                <span
+                  class="status-pill"
+                  [class.accepted]="statusClass(ticket.paymentStatus) === 'accepted'"
+                  [class.pending]="statusClass(ticket.paymentStatus) === 'pending'"
+                  [class.rejected]="statusClass(ticket.paymentStatus) === 'rejected'"
+                >
+                  {{ statusLabel(ticket.paymentStatus) }}
+                </span>
+                <div class="person-actions">
+                  <button
+                    class="btn compact"
+                    type="button"
+                    [disabled]="isTicketSaving() || ticket.paymentStatus === 'accepted'"
+                    (click)="updateTicketStatus(ticket, 'accepted')"
+                  >
+                    Accetta
+                  </button>
+                  <button
+                    class="btn secondary compact"
+                    type="button"
+                    [disabled]="isTicketSaving() || ticket.paymentStatus === 'pending'"
+                    (click)="updateTicketStatus(ticket, 'pending')"
+                  >
+                    Attesa
+                  </button>
+                  <button
+                    class="btn secondary compact"
+                    type="button"
+                    [disabled]="isTicketSaving() || ticket.paymentStatus === 'rejected'"
+                    (click)="updateTicketStatus(ticket, 'rejected')"
+                  >
+                    Rifiuta
+                  </button>
+                  <button
+                    class="btn danger compact"
+                    type="button"
+                    [disabled]="isTicketSaving()"
+                    (click)="removeTicket(ticket)"
+                  >
+                    Togli
+                  </button>
+                </div>
+              </article>
+            }
+          </div>
+        } @else {
+          <p class="muted">Non ci sono ancora richieste per questo evento.</p>
+        }
       </section>
 
       <section class="panel danger-zone">

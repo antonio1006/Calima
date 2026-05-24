@@ -2,7 +2,7 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { EventItem } from '../../models/event.model';
+import { EventItem, Ticket, TicketStatus } from '../../models/event.model';
 import { EventStore } from '../../services/event-store';
 
 @Component({
@@ -17,13 +17,23 @@ export class AdminPage {
 
   readonly screen = signal<'list' | 'detail'>('list');
   readonly isSaving = signal(false);
+  readonly isTicketSaving = signal(false);
   readonly saveMessage = signal<string | null>(null);
+  readonly ticketMessage = signal<string | null>(null);
   readonly selectedEventId = signal('');
   readonly selectedEvent = computed(() => {
     const events = this.store.events();
     const selectedId = this.selectedEventId() || events[0]?.id;
     return events.find((event) => event.id === selectedId) ?? events[0];
   });
+  readonly eventTickets = computed(() => {
+    const eventId = this.selectedEvent()?.id;
+    if (!eventId) return [];
+    return this.store.tickets().filter((ticket) => ticket.eventId === eventId);
+  });
+  readonly pendingTickets = computed(
+    () => this.eventTickets().filter((ticket) => ticket.paymentStatus === 'pending').length,
+  );
 
   readonly eventForm = this.formBuilder.nonNullable.group({
     id: [''],
@@ -38,6 +48,14 @@ export class AdminPage {
     description: ['', Validators.required],
   });
 
+  readonly guestForm = this.formBuilder.nonNullable.group({
+    firstName: ['', Validators.required],
+    lastName: ['', Validators.required],
+    birthDate: ['', Validators.required],
+    email: ['', [Validators.required, Validators.email]],
+    phone: ['', Validators.required],
+  });
+
   constructor() {
     void this.store.refreshEvents(true);
     effect(() => {
@@ -45,6 +63,12 @@ export class AdminPage {
       if (!this.selectedEventId() && firstEvent) {
         this.selectedEventId.set(firstEvent.id);
         this.setFormEvent(firstEvent);
+      }
+    });
+    effect(() => {
+      const eventId = this.selectedEvent()?.id;
+      if (eventId) {
+        void this.store.loadEventTickets(eventId);
       }
     });
   }
@@ -122,6 +146,71 @@ export class AdminPage {
     this.eventForm.reset();
     this.selectedEventId.set('');
     this.screen.set('list');
+  }
+
+  async addGuest(): Promise<void> {
+    this.ticketMessage.set(null);
+    const event = this.selectedEvent();
+    if (!event) return;
+
+    if (this.guestForm.invalid) {
+      this.guestForm.markAllAsTouched();
+      this.ticketMessage.set('Compila tutti i campi della persona da aggiungere.');
+      return;
+    }
+
+    this.isTicketSaving.set(true);
+    const ticket = await this.store.adminAddTicket({
+      eventId: event.id,
+      ...this.guestForm.getRawValue(),
+    });
+    this.isTicketSaving.set(false);
+
+    if (!ticket) {
+      this.ticketMessage.set(this.store.error() || 'Aggiunta in lista non riuscita.');
+      return;
+    }
+
+    this.guestForm.reset({ firstName: '', lastName: '', birthDate: '', email: '', phone: '' });
+    this.ticketMessage.set('Persona aggiunta e accettata in lista.');
+  }
+
+  async updateTicketStatus(ticket: Ticket, status: TicketStatus): Promise<void> {
+    this.ticketMessage.set(null);
+    this.isTicketSaving.set(true);
+    const updated = await this.store.adminUpdateTicketStatus(ticket.id, status);
+    this.isTicketSaving.set(false);
+    this.ticketMessage.set(
+      updated
+        ? `Stato aggiornato: ${this.statusLabel(updated.paymentStatus)}.`
+        : this.store.error(),
+    );
+  }
+
+  async removeTicket(ticket: Ticket): Promise<void> {
+    this.ticketMessage.set(null);
+    this.isTicketSaving.set(true);
+    const removed = await this.store.adminDeleteTicket(ticket.id);
+    this.isTicketSaving.set(false);
+    this.ticketMessage.set(removed ? 'Persona rimossa dalla lista.' : this.store.error());
+  }
+
+  statusLabel(status: TicketStatus): string {
+    const labels: Record<TicketStatus, string> = {
+      accepted: 'Accettata',
+      cancelled: 'Cancellata',
+      paid: 'Accettata',
+      pending: 'In attesa',
+      refunded: 'Rimborsata',
+      rejected: 'Rifiutata',
+    };
+    return labels[status];
+  }
+
+  statusClass(status: TicketStatus): string {
+    if (status === 'accepted' || status === 'paid') return 'accepted';
+    if (status === 'rejected' || status === 'cancelled' || status === 'refunded') return 'rejected';
+    return 'pending';
   }
 
   private setFormEvent(event: EventItem): void {

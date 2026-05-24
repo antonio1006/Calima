@@ -68,7 +68,7 @@ export class EventDetailPage {
       phone: '',
     });
     this.registerSucceeded.set(true);
-    this.registerMessage.set(`Registrazione completata. Ticket ${ticket.id}`);
+    this.registerMessage.set(`Richiesta inviata. L'admin dovra approvarla prima dell'ingresso.`);
   }
 
   useFallbackImage(event: Event): void {

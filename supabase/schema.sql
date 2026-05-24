@@ -17,6 +17,9 @@ exception
   when duplicate_object then null;
 end $$;
 
+alter type public.ticket_status add value if not exists 'accepted';
+alter type public.ticket_status add value if not exists 'rejected';
+
 create table if not exists public.profiles (
   id uuid primary key default gen_random_uuid(),
   auth_user_id uuid unique,
@@ -163,7 +166,6 @@ set search_path = public
 as $$
 declare
   selected_event public.events;
-  sold_count integer;
   created_ticket public.tickets;
 begin
   select *
@@ -176,13 +178,15 @@ begin
     raise exception 'EVENT_NOT_FOUND';
   end if;
 
-  select count(*)
-  into sold_count
-  from public.tickets
-  where event_id = p_event_id and payment_status <> 'cancelled';
-
-  if sold_count >= selected_event.capacity then
-    raise exception 'EVENT_SOLD_OUT';
+  if exists (
+    select 1
+    from public.tickets
+    where
+      event_id = p_event_id
+      and lower(email) = lower(p_email)
+      and payment_status::text in ('pending', 'accepted', 'paid')
+  ) then
+    raise exception 'TICKET_ALREADY_EXISTS';
   end if;
 
   insert into public.tickets (
@@ -203,7 +207,7 @@ begin
     p_birth_date,
     lower(p_email),
     p_phone,
-    case when selected_event.price_cents > 0 then 'pending'::public.ticket_status else 'paid'::public.ticket_status end
+    'pending'::public.ticket_status
   )
   returning * into created_ticket;
 

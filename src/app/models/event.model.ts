@@ -1,4 +1,4 @@
-export type TicketStatus = 'paid' | 'pending' | 'cancelled' | 'refunded';
+export type TicketStatus = 'paid' | 'pending' | 'accepted' | 'rejected' | 'cancelled' | 'refunded';
 export type UserRole = 'client' | 'scanner' | 'admin';
 
 export interface EventItem {

@@ -111,8 +111,8 @@
                     <span>{{ ticket.id }}</span>
                   </div>
                   <div>
-                    <span class="pill" [class.ok]="ticket.paymentStatus === 'paid'">
-                      {{ ticket.paymentStatus === 'paid' ? 'Pagato' : 'Da pagare' }}
+                    <span class="pill" [class.ok]="isTicketAccepted(ticket)">
+                      {{ ticketStatusLabel(ticket) }}
                     </span>
                     <span class="pill" [class.ok]="ticket.checkedIn">
                       {{ ticket.checkedIn ? 'Entrato' : 'Non entrato' }}

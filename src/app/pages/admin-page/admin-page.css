@@ -106,7 +106,7 @@ form,
 .stats {
   display: grid;
   gap: 12px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .stats div {
@@ -201,6 +201,83 @@ textarea {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.three {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 0.7fr 1fr 0.8fr;
+}
+
+.people-panel,
+.guest-form,
+.people-list {
+  display: grid;
+  gap: 14px;
+}
+
+.person-row {
+  align-items: center;
+  background: rgba(255, 229, 176, 0.08);
+  border: 1px solid rgba(217, 148, 24, 0.24);
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(220px, 1fr) auto minmax(280px, auto);
+  padding: 14px;
+}
+
+.person-row.pending-row {
+  border-color: rgba(243, 165, 29, 0.72);
+}
+
+.person-main {
+  display: grid;
+  gap: 4px;
+}
+
+.person-main strong {
+  color: #fff3d8;
+}
+
+.person-main span,
+.muted {
+  color: rgba(249, 231, 195, 0.72);
+}
+
+.status-pill {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  justify-self: start;
+  padding: 7px 10px;
+  text-transform: uppercase;
+}
+
+.status-pill.accepted {
+  background: rgba(149, 224, 173, 0.16);
+  border-color: rgba(149, 224, 173, 0.38);
+  color: #baf3ca;
+}
+
+.status-pill.pending {
+  background: rgba(243, 165, 29, 0.15);
+  border-color: rgba(243, 165, 29, 0.44);
+  color: #ffd990;
+}
+
+.status-pill.rejected {
+  background: rgba(255, 154, 170, 0.14);
+  border-color: rgba(255, 154, 170, 0.36);
+  color: #ffbdc8;
+}
+
+.person-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: end;
+}
+
 .actions {
   align-items: center;
   display: flex;
@@ -257,6 +334,12 @@ textarea {
   color: #fff3d8;
 }
 
+.btn.compact {
+  font-size: 12px;
+  min-height: 36px;
+  padding: 0 11px;
+}
+
 .danger-zone {
   align-items: center;
   border-color: rgba(239, 182, 191, 0.5);
@@ -282,7 +365,17 @@ textarea {
 
   .stats,
   .two,
+  .three,
   .event-editor {
     grid-template-columns: 1fr;
+  }
+
+  .person-row {
+    align-items: start;
+    grid-template-columns: 1fr;
+  }
+
+  .person-actions {
+    justify-content: start;
   }
 }
