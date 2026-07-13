@@ -106,7 +106,7 @@ form,
 .stats {
   display: grid;
   gap: 12px;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .stats div {
@@ -223,10 +223,6 @@ textarea {
   gap: 12px;
   grid-template-columns: minmax(220px, 1fr) auto minmax(280px, auto);
   padding: 14px;
-}
-
-.person-row.pending-row {
-  border-color: rgba(243, 165, 29, 0.72);
 }
 
 .person-row.entered-row {

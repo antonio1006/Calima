@@ -2,7 +2,7 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { EventItem, Ticket, TicketStatus } from '../../models/event.model';
+import { EventItem, Ticket } from '../../models/event.model';
 import { EventStore } from '../../services/event-store';
 
 @Component({
@@ -31,9 +31,6 @@ export class AdminPage {
     if (!eventId) return [];
     return this.store.tickets().filter((ticket) => ticket.eventId === eventId);
   });
-  readonly pendingTickets = computed(
-    () => this.eventTickets().filter((ticket) => ticket.paymentStatus === 'pending').length,
-  );
   readonly checkedInTickets = computed(
     () =>
       this.eventTickets().filter((ticket) => this.isTicketAccepted(ticket) && ticket.checkedIn)
@@ -177,19 +174,7 @@ export class AdminPage {
     }
 
     this.guestForm.reset({ firstName: '', lastName: '', birthDate: '', email: '', phone: '' });
-    this.ticketMessage.set('Persona aggiunta e accettata in lista.');
-  }
-
-  async updateTicketStatus(ticket: Ticket, status: TicketStatus): Promise<void> {
-    this.ticketMessage.set(null);
-    this.isTicketSaving.set(true);
-    const updated = await this.store.adminUpdateTicketStatus(ticket.id, status);
-    this.isTicketSaving.set(false);
-    this.ticketMessage.set(
-      updated
-        ? `Stato aggiornato: ${this.statusLabel(updated.paymentStatus)}.`
-        : this.store.error(),
-    );
+    this.ticketMessage.set('Persona aggiunta in lista.');
   }
 
   async removeTicket(ticket: Ticket): Promise<void> {
@@ -212,24 +197,6 @@ export class AdminPage {
           : `Ingresso annullato per ${updated.firstName} ${updated.lastName}.`
         : this.store.error(),
     );
-  }
-
-  statusLabel(status: TicketStatus): string {
-    const labels: Record<TicketStatus, string> = {
-      accepted: 'Accettata',
-      cancelled: 'Cancellata',
-      paid: 'Accettata',
-      pending: 'In attesa',
-      refunded: 'Rimborsata',
-      rejected: 'Rifiutata',
-    };
-    return labels[status];
-  }
-
-  statusClass(status: TicketStatus): string {
-    if (status === 'accepted' || status === 'paid') return 'accepted';
-    if (status === 'rejected' || status === 'cancelled' || status === 'refunded') return 'rejected';
-    return 'pending';
   }
 
   isTicketAccepted(ticket: Ticket): boolean {

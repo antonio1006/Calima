@@ -49,48 +49,12 @@
     </div>
 
     <aside class="panel booking-panel" id="prenota">
-      <span class="eyebrow">Registrazione</span>
-      <h2>Riserva il tuo ingresso</h2>
-      <p>Compila i dati e riceverai la conferma via email con il codice ticket.</p>
-
-      <form [formGroup]="registrationForm" (ngSubmit)="register()">
-        <input formControlName="eventId" type="hidden" />
-
-        <div class="form-row">
-          <label>
-            Nome
-            <input formControlName="firstName" autocomplete="given-name" />
-          </label>
-
-          <label>
-            Cognome
-            <input formControlName="lastName" autocomplete="family-name" />
-          </label>
-        </div>
-
-        <label>
-          Data di nascita
-          <input formControlName="birthDate" type="date" />
-        </label>
-
-        <label>
-          Email
-          <input formControlName="email" type="email" autocomplete="email" />
-        </label>
-
-        <label>
-          Cellulare
-          <input formControlName="phone" type="tel" autocomplete="tel" inputmode="tel" />
-        </label>
-
-        <button class="btn wide" type="submit" [disabled]="isRegistering()">
-          {{ isRegistering() ? 'Registrazione...' : 'Completa registrazione' }}
-        </button>
-
-        @if (registerMessage(); as message) {
-          <p class="form-message" [class.ok]="registerSucceeded()">{{ message }}</p>
-        }
-      </form>
+      <span class="eyebrow">Lista privata</span>
+      <h2>Accesso gestito dal team</h2>
+      <p>
+        Le persone in lista vengono inserite direttamente dall'organizzazione. Tieni d'occhio le
+        comunicazioni Calima per conferme e dettagli della serata.
+      </p>
     </aside>
   </section>
 } @else {

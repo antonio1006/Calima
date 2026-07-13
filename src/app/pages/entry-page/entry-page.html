@@ -1,0 +1,107 @@
+<section class="entry-shell">
+  <header class="entry-head">
+    <div>
+      <span class="eyebrow">Porta</span>
+      <h1>Ingressi</h1>
+      @if (selectedEvent(); as event) {
+        <p>{{ event.name }} - {{ event.date | date: 'dd/MM/yyyy' }} - {{ event.time }}</p>
+      }
+    </div>
+    <a class="btn secondary" routerLink="/admin">Admin</a>
+  </header>
+
+  <section class="entry-controls">
+    <label>
+      Evento
+      <select [ngModel]="selectedEventId()" (ngModelChange)="selectEvent($event)">
+        @for (event of store.events(); track event.id) {
+          <option [value]="event.id">
+            {{ event.name }} - {{ event.date | date: 'dd/MM/yyyy' }}
+          </option>
+        }
+      </select>
+    </label>
+
+    <div class="counter-grid" aria-label="Conteggio ingressi">
+      <div>
+        <strong>{{ eventTickets().length }}</strong>
+        <span>in lista</span>
+      </div>
+      <div>
+        <strong>{{ enteredCount() }}</strong>
+        <span>entrati</span>
+      </div>
+      <div>
+        <strong>{{ missingCount() }}</strong>
+        <span>mancanti</span>
+      </div>
+    </div>
+
+    <label class="search-field">
+      Cerca persona
+      <input
+        type="search"
+        inputmode="search"
+        autocomplete="off"
+        placeholder="Nome, email, telefono..."
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+      />
+    </label>
+
+    <div class="filter-bar" aria-label="Filtri lista ingressi">
+      <button type="button" [class.active]="filter() === 'all'" (click)="setFilter('all')">
+        Tutti
+      </button>
+      <button type="button" [class.active]="filter() === 'missing'" (click)="setFilter('missing')">
+        Non entrati
+      </button>
+      <button type="button" [class.active]="filter() === 'entered'" (click)="setFilter('entered')">
+        Entrati
+      </button>
+    </div>
+  </section>
+
+  @if (message(); as currentMessage) {
+    <p class="entry-message" [class.error]="store.error()">{{ currentMessage }}</p>
+  }
+
+  <section class="entry-list" aria-label="Lista persone">
+    @if (filteredTickets().length) {
+      @for (ticket of filteredTickets(); track ticket.id) {
+        <article class="entry-card" [class.entered]="ticket.checkedIn">
+          <div class="person-copy">
+            <span>{{ ticket.checkedIn ? 'Entrato' : 'Da entrare' }}</span>
+            <strong>{{ ticket.firstName }} {{ ticket.lastName }}</strong>
+            <p>{{ ticket.email }} - {{ ticket.phone }}</p>
+          </div>
+
+          @if (ticket.checkedIn) {
+            <button
+              class="btn secondary wide"
+              type="button"
+              [disabled]="isSaving()"
+              (click)="toggleCheckIn(ticket, false)"
+            >
+              Annulla
+            </button>
+          } @else {
+            <button
+              class="btn wide"
+              type="button"
+              [disabled]="isSaving()"
+              (click)="toggleCheckIn(ticket, true)"
+            >
+              Segna ingresso
+            </button>
+          }
+        </article>
+      }
+    } @else {
+      <div class="empty-state">
+        <h2>Nessuna persona trovata</h2>
+        <p>Controlla il filtro, la ricerca o la lista dell'evento selezionato.</p>
+      </div>
+    }
+  </section>
+</section>

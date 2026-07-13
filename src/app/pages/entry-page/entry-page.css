@@ -1,0 +1,239 @@
+:host {
+  color: #f9e7c3;
+  display: block;
+}
+
+.entry-shell {
+  display: grid;
+  gap: 14px;
+  margin: 0 auto;
+  max-width: 780px;
+  padding: 18px 0 34px;
+}
+
+.entry-head {
+  align-items: start;
+  background:
+    linear-gradient(120deg, rgba(42, 18, 8, 0.96), rgba(89, 34, 8, 0.78), rgba(13, 73, 78, 0.48)),
+    url('/calima-logo.webp');
+  background-position: center;
+  background-size: cover;
+  border: 1px solid rgba(217, 148, 24, 0.34);
+  border-radius: 8px;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  padding: 18px;
+}
+
+.entry-head h1 {
+  color: #f3a51d;
+  font-size: clamp(42px, 14vw, 86px);
+  letter-spacing: 0;
+  line-height: 0.9;
+  margin: 5px 0 8px;
+  text-transform: uppercase;
+}
+
+.entry-head p,
+.empty-state p,
+.person-copy p {
+  color: rgba(249, 231, 195, 0.78);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.entry-controls,
+.entry-card,
+.empty-state {
+  background: rgba(58, 21, 8, 0.86);
+  border: 1px solid rgba(217, 148, 24, 0.3);
+  border-radius: 8px;
+  box-shadow: 0 18px 46px rgba(17, 8, 3, 0.24);
+}
+
+.entry-controls {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  position: sticky;
+  top: 70px;
+  z-index: 3;
+}
+
+.counter-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.counter-grid div {
+  background: rgba(255, 229, 176, 0.1);
+  border: 1px solid rgba(217, 148, 24, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.counter-grid strong {
+  color: #fff3d8;
+  display: block;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.counter-grid span,
+.eyebrow,
+label,
+.person-copy span {
+  color: #f3a51d;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+label {
+  display: grid;
+  gap: 7px;
+}
+
+input,
+select {
+  background: rgba(255, 243, 216, 0.97);
+  border: 1px solid rgba(217, 148, 24, 0.5);
+  border-radius: 8px;
+  color: #24140b;
+  min-height: 48px;
+  padding: 0 13px;
+}
+
+.search-field input {
+  font-size: 19px;
+  font-weight: 800;
+  min-height: 58px;
+}
+
+.filter-bar {
+  background: rgba(255, 229, 176, 0.08);
+  border: 1px solid rgba(217, 148, 24, 0.22);
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 5px;
+}
+
+.filter-bar button {
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  color: rgba(249, 231, 195, 0.76);
+  cursor: pointer;
+  font-weight: 900;
+  min-height: 42px;
+}
+
+.filter-bar button.active {
+  background: #d99418;
+  color: #2a1208;
+}
+
+.entry-message {
+  background: rgba(149, 224, 173, 0.14);
+  border: 1px solid rgba(149, 224, 173, 0.34);
+  border-radius: 8px;
+  color: #baf3ca;
+  font-weight: 900;
+  margin: 0;
+  padding: 12px 14px;
+}
+
+.entry-message.error {
+  background: rgba(255, 154, 170, 0.12);
+  border-color: rgba(255, 154, 170, 0.38);
+  color: #ffbdc8;
+}
+
+.entry-list {
+  display: grid;
+  gap: 10px;
+}
+
+.entry-card {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.entry-card.entered {
+  background: rgba(28, 86, 57, 0.72);
+  border-color: rgba(149, 224, 173, 0.42);
+}
+
+.person-copy {
+  display: grid;
+  gap: 5px;
+}
+
+.person-copy strong {
+  color: #fff3d8;
+  font-size: 24px;
+  line-height: 1.08;
+}
+
+.btn {
+  align-items: center;
+  background: #d99418;
+  border: 0;
+  border-radius: 8px;
+  color: #2a1208;
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 900;
+  justify-content: center;
+  min-height: 54px;
+  padding: 0 16px;
+  text-decoration: none;
+}
+
+.btn.secondary {
+  background: rgba(255, 224, 162, 0.12);
+  border: 1px solid rgba(217, 148, 24, 0.38);
+  color: #f7d99d;
+}
+
+.btn:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.wide {
+  width: 100%;
+}
+
+.empty-state {
+  padding: 24px;
+}
+
+.empty-state h2 {
+  color: #fff3d8;
+  margin: 0 0 8px;
+}
+
+@media (max-width: 720px) {
+  .entry-shell {
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    padding: 10px 12px 28px;
+    width: 100vw;
+  }
+
+  .entry-head {
+    align-items: stretch;
+    display: grid;
+  }
+
+  .entry-controls {
+    top: 58px;
+  }
+}

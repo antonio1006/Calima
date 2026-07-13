@@ -20,6 +20,7 @@ module.exports = async function handler(req, res) {
         .from('tickets')
         .select('*')
         .eq('event_id', eventId)
+        .in('payment_status', ACTIVE_STATUSES)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -171,7 +172,7 @@ async function findActiveTicketByEmail(supabase, eventId, email) {
     .select('id')
     .eq('event_id', eventId)
     .eq('email', email)
-    .in('payment_status', ['pending', ...ACTIVE_STATUSES])
+    .in('payment_status', ACTIVE_STATUSES)
     .limit(1);
 
   if (error) throw error;

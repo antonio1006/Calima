@@ -1,6 +1,7 @@
 <section class="admin-head">
   <div class="admin-actions">
     <a class="btn secondary" routerLink="/events">Torna agli eventi</a>
+    <a class="btn secondary" routerLink="/ingressi">Modalita ingressi</a>
     <button class="btn" type="button" (click)="createEvent()">Nuovo evento</button>
   </div>
 </section>
@@ -53,10 +54,6 @@
         <div>
           <strong>{{ checkedInTickets() }}/{{ store.statsFor(event.id).sold }}</strong>
           <span>conteggio live</span>
-        </div>
-        <div>
-          <strong>{{ pendingTickets() }}</strong>
-          <span>da approvare</span>
         </div>
         <div>
           <strong>{{ store.statsFor(event.id).revenue | currency: 'EUR' }}</strong>
@@ -144,7 +141,7 @@
       <section class="panel people-panel">
         <div class="section-title">
           <span class="eyebrow">Lista persone</span>
-          <h2>Richieste e ingressi</h2>
+          <h2>Persone in lista</h2>
         </div>
 
         <form class="guest-form" [formGroup]="guestForm" (ngSubmit)="addGuest()">
@@ -185,25 +182,14 @@
         @if (eventTickets().length) {
           <div class="people-list">
             @for (ticket of eventTickets(); track ticket.id) {
-              <article
-                class="person-row"
-                [class.pending-row]="ticket.paymentStatus === 'pending'"
-                [class.entered-row]="ticket.checkedIn"
-              >
+              <article class="person-row" [class.entered-row]="ticket.checkedIn">
                 <div class="person-main">
                   <strong>{{ ticket.firstName }} {{ ticket.lastName }}</strong>
                   <span>{{ ticket.email }} - {{ ticket.phone }}</span>
                   <span>{{ ticket.id }} - {{ ticket.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
                 </div>
                 <div class="person-statuses">
-                  <span
-                    class="status-pill"
-                    [class.accepted]="statusClass(ticket.paymentStatus) === 'accepted'"
-                    [class.pending]="statusClass(ticket.paymentStatus) === 'pending'"
-                    [class.rejected]="statusClass(ticket.paymentStatus) === 'rejected'"
-                  >
-                    {{ statusLabel(ticket.paymentStatus) }}
-                  </span>
+                  <span class="status-pill accepted">In lista</span>
                   <span class="status-pill check" [class.accepted]="ticket.checkedIn">
                     {{ ticket.checkedIn ? 'Entrato' : 'Non entrato' }}
                   </span>
@@ -226,30 +212,6 @@
                     Annulla ingresso
                   </button>
                   <button
-                    class="btn compact"
-                    type="button"
-                    [disabled]="isTicketSaving() || ticket.paymentStatus === 'accepted'"
-                    (click)="updateTicketStatus(ticket, 'accepted')"
-                  >
-                    Accetta
-                  </button>
-                  <button
-                    class="btn secondary compact"
-                    type="button"
-                    [disabled]="isTicketSaving() || ticket.paymentStatus === 'pending'"
-                    (click)="updateTicketStatus(ticket, 'pending')"
-                  >
-                    Attesa
-                  </button>
-                  <button
-                    class="btn secondary compact"
-                    type="button"
-                    [disabled]="isTicketSaving() || ticket.paymentStatus === 'rejected'"
-                    (click)="updateTicketStatus(ticket, 'rejected')"
-                  >
-                    Rifiuta
-                  </button>
-                  <button
                     class="btn danger compact"
                     type="button"
                     [disabled]="isTicketSaving()"
@@ -262,7 +224,7 @@
             }
           </div>
         } @else {
-          <p class="muted">Non ci sono ancora richieste per questo evento.</p>
+          <p class="muted">Non ci sono ancora persone in lista per questo evento.</p>
         }
       </section>
 

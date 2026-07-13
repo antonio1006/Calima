@@ -104,53 +104,16 @@
       </div>
     </div>
 
-    <aside class="ticket-panel">
+    <aside class="ticket-panel private-list-panel">
       <div class="registration-copy">
-        <span class="eyebrow">Registrazione</span>
-        <h2>Unisciti a Calima</h2>
+        <span class="eyebrow">Lista privata</span>
+        <h2>Accesso su lista</h2>
         <p>
-          Lascia i tuoi dati per creare il profilo ospite e generare il ticket demo collegato alla
-          tua email.
+          La partecipazione viene gestita direttamente dall'organizzazione. Se vuoi essere inserito
+          in lista, contatta il team Calima o attendi comunicazioni ufficiali per la serata.
         </p>
       </div>
-      <form [formGroup]="registrationForm" (ngSubmit)="register()">
-        <input formControlName="eventId" type="hidden" />
-
-        <div class="form-row">
-          <label>
-            Nome
-            <input formControlName="firstName" autocomplete="given-name" />
-          </label>
-
-          <label>
-            Cognome
-            <input formControlName="lastName" autocomplete="family-name" />
-          </label>
-        </div>
-
-        <label>
-          Data di nascita
-          <input formControlName="birthDate" type="date" />
-        </label>
-
-        <label>
-          Email
-          <input formControlName="email" type="email" autocomplete="email" />
-        </label>
-
-        <label>
-          Cellulare
-          <input formControlName="phone" type="tel" autocomplete="tel" />
-        </label>
-
-        <button class="btn wide" type="submit" [disabled]="isRegistering()">
-          {{ isRegistering() ? 'Registrazione...' : 'Completa registrazione' }}
-        </button>
-
-        @if (registerMessage(); as message) {
-          <p class="form-message" [class.ok]="registerSucceeded()">{{ message }}</p>
-        }
-      </form>
+      <a class="btn wide" [routerLink]="['/events', event.id]">Vedi dettagli serata</a>
     </aside>
   </section>
 } @else {
