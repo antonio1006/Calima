@@ -34,6 +34,11 @@ export class AdminPage {
   readonly pendingTickets = computed(
     () => this.eventTickets().filter((ticket) => ticket.paymentStatus === 'pending').length,
   );
+  readonly checkedInTickets = computed(
+    () =>
+      this.eventTickets().filter((ticket) => this.isTicketAccepted(ticket) && ticket.checkedIn)
+        .length,
+  );
 
   readonly eventForm = this.formBuilder.nonNullable.group({
     id: [''],
@@ -195,6 +200,20 @@ export class AdminPage {
     this.ticketMessage.set(removed ? 'Persona rimossa dalla lista.' : this.store.error());
   }
 
+  async toggleTicketCheckIn(ticket: Ticket, checkedIn: boolean): Promise<void> {
+    this.ticketMessage.set(null);
+    this.isTicketSaving.set(true);
+    const updated = await this.store.adminSetTicketCheckIn(ticket.id, checkedIn);
+    this.isTicketSaving.set(false);
+    this.ticketMessage.set(
+      updated
+        ? checkedIn
+          ? `${updated.firstName} ${updated.lastName} conteggiato tra gli ingressi.`
+          : `Ingresso annullato per ${updated.firstName} ${updated.lastName}.`
+        : this.store.error(),
+    );
+  }
+
   statusLabel(status: TicketStatus): string {
     const labels: Record<TicketStatus, string> = {
       accepted: 'Accettata',
@@ -211,6 +230,10 @@ export class AdminPage {
     if (status === 'accepted' || status === 'paid') return 'accepted';
     if (status === 'rejected' || status === 'cancelled' || status === 'refunded') return 'rejected';
     return 'pending';
+  }
+
+  isTicketAccepted(ticket: Ticket): boolean {
+    return ticket.paymentStatus === 'accepted' || ticket.paymentStatus === 'paid';
   }
 
   private setFormEvent(event: EventItem): void {

@@ -106,7 +106,7 @@ form,
 .stats {
   display: grid;
   gap: 12px;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
 .stats div {
@@ -229,6 +229,11 @@ textarea {
   border-color: rgba(243, 165, 29, 0.72);
 }
 
+.person-row.entered-row {
+  background: rgba(149, 224, 173, 0.11);
+  border-color: rgba(149, 224, 173, 0.42);
+}
+
 .person-main {
   display: grid;
   gap: 4px;
@@ -269,6 +274,18 @@ textarea {
   background: rgba(255, 154, 170, 0.14);
   border-color: rgba(255, 154, 170, 0.36);
   color: #ffbdc8;
+}
+
+.status-pill.check {
+  background: rgba(255, 229, 176, 0.08);
+  border-color: rgba(255, 229, 176, 0.2);
+  color: rgba(249, 231, 195, 0.74);
+}
+
+.person-statuses {
+  display: grid;
+  gap: 7px;
+  justify-items: start;
 }
 
 .person-actions {

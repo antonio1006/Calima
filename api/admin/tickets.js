@@ -9,7 +9,7 @@ module.exports = async function handler(req, res) {
   if (!['GET', 'POST', 'PATCH', 'DELETE'].includes(req.method)) return methodNotAllowed(res);
 
   try {
-    await requireAdmin(req);
+    const adminProfile = await requireAdmin(req);
     const supabase = adminClient();
 
     if (req.method === 'GET') {
@@ -65,23 +65,42 @@ module.exports = async function handler(req, res) {
 
     if (req.method === 'PATCH') {
       const id = String(body.id || '');
-      const status = String(body.status || '');
-      if (!id || !MUTABLE_STATUSES.includes(status)) {
+      const hasStatus = body.status !== undefined;
+      const hasCheckedIn = typeof body.checkedIn === 'boolean';
+      const status = hasStatus ? String(body.status || '') : '';
+      if (!id || (!hasStatus && !hasCheckedIn)) {
+        return json(res, 400, { error: 'MISSING_TICKET_UPDATE' });
+      }
+
+      if (hasStatus && !MUTABLE_STATUSES.includes(status)) {
         return json(res, 400, { error: 'INVALID_TICKET_STATUS' });
       }
 
       const current = await findTicketByPublicId(supabase, id);
       if (!current) return json(res, 404, { error: 'TICKET_NOT_FOUND' });
 
-      if (status === 'accepted' && !ACTIVE_STATUSES.includes(current.payment_status)) {
+      const nextStatus = hasStatus ? status : current.payment_status;
+      const nextIsActive = ACTIVE_STATUSES.includes(nextStatus);
+
+      if (nextStatus === 'accepted' && !ACTIVE_STATUSES.includes(current.payment_status)) {
         const capacity = await checkCapacity(supabase, current.event_id, current.id);
         if (!capacity.ok) return json(res, capacity.status, { error: capacity.error });
       }
 
+      if (hasCheckedIn && !nextIsActive) {
+        return json(res, 409, { error: 'TICKET_NOT_ACCEPTED' });
+      }
+
+      const nextCheckedIn = nextIsActive
+        ? hasCheckedIn
+          ? body.checkedIn
+          : current.checked_in
+        : false;
       const payload = {
-        payment_status: status,
-        checked_in: status === 'accepted' ? current.checked_in : false,
-        checked_in_at: status === 'accepted' ? current.checked_in_at : null,
+        payment_status: nextStatus,
+        checked_in: nextCheckedIn,
+        checked_in_at: nextCheckedIn ? current.checked_in_at || new Date().toISOString() : null,
+        checked_in_by: nextCheckedIn ? adminProfile.id : null,
       };
 
       const { data, error } = await supabase

@@ -51,6 +51,10 @@
           <span>ingressi</span>
         </div>
         <div>
+          <strong>{{ checkedInTickets() }}/{{ store.statsFor(event.id).sold }}</strong>
+          <span>conteggio live</span>
+        </div>
+        <div>
           <strong>{{ pendingTickets() }}</strong>
           <span>da approvare</span>
         </div>
@@ -181,21 +185,46 @@
         @if (eventTickets().length) {
           <div class="people-list">
             @for (ticket of eventTickets(); track ticket.id) {
-              <article class="person-row" [class.pending-row]="ticket.paymentStatus === 'pending'">
+              <article
+                class="person-row"
+                [class.pending-row]="ticket.paymentStatus === 'pending'"
+                [class.entered-row]="ticket.checkedIn"
+              >
                 <div class="person-main">
                   <strong>{{ ticket.firstName }} {{ ticket.lastName }}</strong>
                   <span>{{ ticket.email }} - {{ ticket.phone }}</span>
                   <span>{{ ticket.id }} - {{ ticket.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
                 </div>
-                <span
-                  class="status-pill"
-                  [class.accepted]="statusClass(ticket.paymentStatus) === 'accepted'"
-                  [class.pending]="statusClass(ticket.paymentStatus) === 'pending'"
-                  [class.rejected]="statusClass(ticket.paymentStatus) === 'rejected'"
-                >
-                  {{ statusLabel(ticket.paymentStatus) }}
-                </span>
+                <div class="person-statuses">
+                  <span
+                    class="status-pill"
+                    [class.accepted]="statusClass(ticket.paymentStatus) === 'accepted'"
+                    [class.pending]="statusClass(ticket.paymentStatus) === 'pending'"
+                    [class.rejected]="statusClass(ticket.paymentStatus) === 'rejected'"
+                  >
+                    {{ statusLabel(ticket.paymentStatus) }}
+                  </span>
+                  <span class="status-pill check" [class.accepted]="ticket.checkedIn">
+                    {{ ticket.checkedIn ? 'Entrato' : 'Non entrato' }}
+                  </span>
+                </div>
                 <div class="person-actions">
+                  <button
+                    class="btn compact"
+                    type="button"
+                    [disabled]="isTicketSaving() || !isTicketAccepted(ticket) || ticket.checkedIn"
+                    (click)="toggleTicketCheckIn(ticket, true)"
+                  >
+                    Segna ingresso
+                  </button>
+                  <button
+                    class="btn secondary compact"
+                    type="button"
+                    [disabled]="isTicketSaving() || !ticket.checkedIn"
+                    (click)="toggleTicketCheckIn(ticket, false)"
+                  >
+                    Annulla ingresso
+                  </button>
                   <button
                     class="btn compact"
                     type="button"

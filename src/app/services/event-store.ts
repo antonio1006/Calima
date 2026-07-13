@@ -223,6 +223,36 @@ export class EventStore {
     }
   }
 
+  async adminSetTicketCheckIn(ticketId: string, checkedIn: boolean): Promise<Ticket | null> {
+    this.error.set(null);
+
+    try {
+      const response = await fetch('/api/admin/tickets', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: ticketId, checkedIn }),
+      });
+      const payload = await this.readPayload<TicketResponse>(response);
+      if (!response.ok || !payload.ticket) {
+        this.error.set(this.ticketErrorMessage(payload.error));
+        return null;
+      }
+
+      this.state.update((state) => ({
+        ...state,
+        tickets: state.tickets.map((ticket) =>
+          ticket.id === payload.ticket?.id ? payload.ticket : ticket,
+        ),
+      }));
+      await this.refreshEvents(true);
+      return payload.ticket;
+    } catch (error) {
+      this.error.set(error instanceof Error ? error.message : 'Conteggio ingresso non riuscito.');
+      return null;
+    }
+  }
+
   async adminDeleteTicket(ticketId: string): Promise<boolean> {
     this.error.set(null);
 
@@ -362,8 +392,10 @@ export class EventStore {
       INVALID_EVENT_ID: 'Evento non valido. Ricarica la pagina e riprova.',
       INVALID_TICKET_STATUS: 'Stato lista non valido.',
       LOGIN_REQUIRED: 'Accedi o crea un account Calima prima di richiedere la partecipazione.',
+      MISSING_TICKET_UPDATE: 'Scegli quale modifica applicare alla persona.',
       MISSING_FIELDS: 'Compila tutti i campi richiesti.',
       TICKET_ALREADY_EXISTS: 'Hai gia una richiesta attiva per questo evento.',
+      TICKET_NOT_ACCEPTED: "Puoi segnare l'ingresso solo per persone accettate in lista.",
       TICKET_NOT_FOUND: 'Persona non trovata in lista.',
       TICKET_NOT_CREATED: 'Non siamo riusciti a creare il ticket.',
     };
