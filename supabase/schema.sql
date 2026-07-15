@@ -88,6 +88,9 @@ create table if not exists public.tickets (
   checked_in boolean not null default false,
   checked_in_at timestamptz,
   checked_in_by uuid references public.profiles(id) on delete set null,
+  cash_confirmed boolean not null default false,
+  cash_confirmed_at timestamptz,
+  cash_confirmed_by uuid references public.profiles(id) on delete set null,
   created_at timestamptz not null default now()
 );
 
@@ -117,6 +120,15 @@ add column if not exists payment_method text;
 
 alter table public.tickets
 add column if not exists entry_mode text not null default 'list';
+
+alter table public.tickets
+add column if not exists cash_confirmed boolean not null default false;
+
+alter table public.tickets
+add column if not exists cash_confirmed_at timestamptz;
+
+alter table public.tickets
+add column if not exists cash_confirmed_by uuid references public.profiles(id) on delete set null;
 
 alter table public.tickets
 drop constraint if exists tickets_payment_method_check;

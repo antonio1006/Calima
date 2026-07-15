@@ -73,10 +73,14 @@ module.exports = async function handler(req, res) {
       const hasCheckedIn = typeof body.checkedIn === 'boolean';
       const hasPaymentMethod = body.paymentMethod !== undefined;
       const hasEntryMode = body.entryMode !== undefined;
+      const hasCashConfirmed = typeof body.cashConfirmed === 'boolean';
       const status = hasStatus ? String(body.status || '') : '';
       const paymentMethod = hasPaymentMethod ? String(body.paymentMethod || '') : '';
       const entryMode = hasEntryMode ? String(body.entryMode || '') : '';
-      if (!id || (!hasStatus && !hasCheckedIn && !hasPaymentMethod && !hasEntryMode)) {
+      if (
+        !id ||
+        (!hasStatus && !hasCheckedIn && !hasPaymentMethod && !hasEntryMode && !hasCashConfirmed)
+      ) {
         return json(res, 400, { error: 'MISSING_TICKET_UPDATE' });
       }
 
@@ -112,13 +116,31 @@ module.exports = async function handler(req, res) {
           ? body.checkedIn
           : current.checked_in
         : false;
+      const nextPaymentMethod = hasPaymentMethod ? paymentMethod : current.payment_method;
+      const nextEntryMode = hasEntryMode ? entryMode : current.entry_mode || 'list';
+      const nextCashConfirmed =
+        nextIsActive && nextCheckedIn
+          ? hasCashConfirmed
+            ? body.cashConfirmed
+            : Boolean(current.cash_confirmed)
+          : false;
+
+      if (nextCashConfirmed && !nextPaymentMethod) {
+        return json(res, 400, { error: 'TICKET_CASH_INCOMPLETE' });
+      }
+
       const payload = {
         payment_status: nextStatus,
-        payment_method: hasPaymentMethod ? paymentMethod : current.payment_method,
-        entry_mode: hasEntryMode ? entryMode : current.entry_mode || 'list',
+        payment_method: nextPaymentMethod,
+        entry_mode: nextEntryMode,
         checked_in: nextCheckedIn,
         checked_in_at: nextCheckedIn ? current.checked_in_at || new Date().toISOString() : null,
         checked_in_by: nextCheckedIn ? adminProfile.id : null,
+        cash_confirmed: nextCashConfirmed,
+        cash_confirmed_at: nextCashConfirmed
+          ? current.cash_confirmed_at || new Date().toISOString()
+          : null,
+        cash_confirmed_by: nextCashConfirmed ? current.cash_confirmed_by || adminProfile.id : null,
       };
 
       const { data, error } = await supabase

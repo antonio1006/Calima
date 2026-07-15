@@ -262,7 +262,11 @@ export class EventStore {
 
   async adminSetTicketCashData(
     ticketId: string,
-    input: { paymentMethod?: TicketPaymentMethod; entryMode?: TicketEntryMode },
+    input: {
+      paymentMethod?: TicketPaymentMethod;
+      entryMode?: TicketEntryMode;
+      cashConfirmed?: boolean;
+    },
   ): Promise<Ticket | null> {
     this.error.set(null);
 
@@ -436,6 +440,7 @@ export class EventStore {
       MISSING_TICKET_UPDATE: 'Scegli quale modifica applicare alla persona.',
       MISSING_FIELDS: 'Compila tutti i campi richiesti.',
       TICKET_ALREADY_EXISTS: 'Questa persona e gia in lista per questo evento.',
+      TICKET_CASH_INCOMPLETE: 'Scegli metodo di pagamento e modalita ingresso prima di confermare.',
       TICKET_NOT_ACCEPTED: "Puoi segnare l'ingresso solo per persone accettate in lista.",
       TICKET_NOT_FOUND: 'Persona non trovata in lista.',
       TICKET_NOT_CREATED: 'Non siamo riusciti a creare il ticket.',

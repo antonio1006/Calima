@@ -7,6 +7,7 @@ import { EventStore } from '../../services/event-store';
 
 type EntryFilter = 'all' | 'missing' | 'entered';
 type EntryModeView = 'list' | 'cash';
+type CashView = 'pending' | 'entered';
 
 @Component({
   selector: 'app-entry-page',
@@ -27,6 +28,7 @@ export class EntryPage implements OnDestroy {
   readonly searchTerm = signal('');
   readonly filter = signal<EntryFilter>('missing');
   readonly mode = signal<EntryModeView>('list');
+  readonly cashView = signal<CashView>('pending');
   readonly isSaving = signal(false);
   readonly message = signal<string | null>(null);
 
@@ -49,7 +51,18 @@ export class EntryPage implements OnDestroy {
     Math.max(0, this.eventTickets().length - this.enteredCount()),
   );
   readonly cashTickets = computed(() =>
-    this.eventTickets().filter((ticket) => ticket.checkedIn && this.matchesSearch(ticket)),
+    this.eventTickets().filter((ticket) => {
+      if (!ticket.checkedIn) return false;
+      if (this.cashView() === 'pending' && ticket.cashConfirmed) return false;
+      if (this.cashView() === 'entered' && !ticket.cashConfirmed) return false;
+      return this.matchesSearch(ticket);
+    }),
+  );
+  readonly pendingCashCount = computed(
+    () => this.eventTickets().filter((ticket) => ticket.checkedIn && !ticket.cashConfirmed).length,
+  );
+  readonly confirmedCashCount = computed(
+    () => this.eventTickets().filter((ticket) => ticket.checkedIn && ticket.cashConfirmed).length,
   );
 
   readonly filteredTickets = computed(() => {
@@ -81,6 +94,7 @@ export class EntryPage implements OnDestroy {
     this.searchTerm.set('');
     this.message.set(null);
     this.mode.set('list');
+    this.cashView.set('pending');
   }
 
   clearEvent(): void {
@@ -89,6 +103,7 @@ export class EntryPage implements OnDestroy {
     this.message.set(null);
     this.filter.set('missing');
     this.mode.set('list');
+    this.cashView.set('pending');
   }
 
   setFilter(filter: EntryFilter): void {
@@ -99,6 +114,12 @@ export class EntryPage implements OnDestroy {
     this.mode.set(mode);
     this.message.set(null);
     this.searchTerm.set('');
+    this.cashView.set('pending');
+  }
+
+  setCashView(view: CashView): void {
+    this.cashView.set(view);
+    this.message.set(null);
   }
 
   async toggleCheckIn(ticket: Ticket, checkedIn: boolean): Promise<void> {
@@ -148,6 +169,30 @@ export class EntryPage implements OnDestroy {
 
     this.message.set(
       `${updated.firstName} ${updated.lastName}: ingresso ${this.entryModeLabel(entryMode)}.`,
+    );
+  }
+
+  async confirmCash(ticket: Ticket, cashConfirmed: boolean): Promise<void> {
+    this.message.set(null);
+
+    if (cashConfirmed && !ticket.paymentMethod) {
+      this.message.set('Scegli prima il metodo di pagamento.');
+      return;
+    }
+
+    this.isSaving.set(true);
+    const updated = await this.store.adminSetTicketCashData(ticket.id, { cashConfirmed });
+    this.isSaving.set(false);
+
+    if (!updated) {
+      this.message.set(this.store.error() || 'Conferma cassa non riuscita.');
+      return;
+    }
+
+    this.message.set(
+      cashConfirmed
+        ? `${updated.firstName} ${updated.lastName} confermato in cassa.`
+        : `${updated.firstName} ${updated.lastName} riaperto in cassa.`,
     );
   }
 

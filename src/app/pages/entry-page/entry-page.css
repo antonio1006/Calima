@@ -160,7 +160,8 @@ select {
 }
 
 .mode-tabs,
-.filter-bar {
+.filter-bar,
+.cash-view-bar {
   background: rgba(255, 229, 176, 0.08);
   border: 1px solid rgba(217, 148, 24, 0.22);
   border-radius: 8px;
@@ -174,8 +175,13 @@ select {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.cash-view-bar {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .mode-tabs button,
-.filter-bar button {
+.filter-bar button,
+.cash-view-bar button {
   background: transparent;
   border: 0;
   border-radius: 7px;
@@ -186,9 +192,23 @@ select {
 }
 
 .mode-tabs button.active,
-.filter-bar button.active {
+.filter-bar button.active,
+.cash-view-bar button.active {
   background: #d99418;
   color: #2a1208;
+}
+
+.cash-view-bar button {
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+  line-height: 1.1;
+  padding: 8px 6px;
+}
+
+.cash-view-bar span {
+  font-size: 18px;
+  line-height: 1;
 }
 
 .entry-message {

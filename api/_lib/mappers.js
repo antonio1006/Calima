@@ -59,6 +59,7 @@ function toAppTicket(row) {
     paymentMethod: row.payment_method || undefined,
     entryMode: row.entry_mode || 'list',
     checkedIn: row.checked_in,
+    cashConfirmed: Boolean(row.cash_confirmed),
     createdAt: row.created_at,
   };
 }

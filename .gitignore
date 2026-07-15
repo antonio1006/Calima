@@ -33,6 +33,7 @@ yarn-error.log
 .env.local
 .env.*.local
 /supabase/*
+!/supabase/*.sql
 
 # Miscellaneous
 /.angular/cache

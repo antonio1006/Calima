@@ -29,6 +29,7 @@ export interface Ticket {
   paymentMethod?: TicketPaymentMethod;
   entryMode: TicketEntryMode;
   checkedIn: boolean;
+  cashConfirmed: boolean;
   createdAt: string;
 }
 

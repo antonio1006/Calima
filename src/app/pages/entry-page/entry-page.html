@@ -93,6 +93,25 @@
             Entrati
           </button>
         </div>
+      } @else {
+        <div class="cash-view-bar" aria-label="Vista cassa">
+          <button
+            type="button"
+            [class.active]="cashView() === 'pending'"
+            (click)="setCashView('pending')"
+          >
+            Da confermare
+            <span>{{ pendingCashCount() }}</span>
+          </button>
+          <button
+            type="button"
+            [class.active]="cashView() === 'entered'"
+            (click)="setCashView('entered')"
+          >
+            Persone entrate
+            <span>{{ confirmedCashCount() }}</span>
+          </button>
+        </div>
       }
     </section>
 
@@ -145,7 +164,7 @@
           @for (ticket of cashTickets(); track ticket.id) {
             <article class="entry-card cash-card">
               <div class="person-copy">
-                <span>Entrato</span>
+                <span>{{ ticket.cashConfirmed ? 'Cassa confermata' : 'Da confermare' }}</span>
                 <strong>{{ ticket.firstName }} {{ ticket.lastName }}</strong>
                 <p>{{ ticket.email }} - {{ ticket.phone }}</p>
               </div>
@@ -199,12 +218,37 @@
                   </div>
                 </div>
               </div>
+
+              @if (cashView() === 'pending') {
+                <button
+                  class="btn wide"
+                  type="button"
+                  [disabled]="isSaving() || !ticket.paymentMethod"
+                  (click)="confirmCash(ticket, true)"
+                >
+                  Conferma
+                </button>
+              } @else {
+                <button
+                  class="btn secondary wide"
+                  type="button"
+                  [disabled]="isSaving()"
+                  (click)="confirmCash(ticket, false)"
+                >
+                  Riapri in cassa
+                </button>
+              }
             </article>
           }
         } @else {
           <div class="empty-state">
-            <h2>Nessun ingresso in cassa</h2>
-            <p>Quando una persona viene segnata come entrata in Lista, apparira qui.</p>
+            @if (cashView() === 'pending') {
+              <h2>Nessuna persona da confermare</h2>
+              <p>Gli ingressi confermati si trovano nel pulsante Persone entrate.</p>
+            } @else {
+              <h2>Nessuna persona entrata</h2>
+              <p>Quando confermi la cassa di una persona, la ritrovi qui.</p>
+            }
           </div>
         }
       </section>
