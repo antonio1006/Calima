@@ -51,7 +51,7 @@
       <button class="btn secondary" type="button" (click)="logout()">Esci</button>
     </section>
 
-    @if (user.role !== 'admin') {
+    @if (user.role === 'admin') {
       <section class="content-grid">
         <aside class="panel">
           <span class="eyebrow">Console</span>
