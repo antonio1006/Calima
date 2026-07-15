@@ -56,6 +56,8 @@ function toAppTicket(row) {
     email: row.email,
     phone: row.phone,
     paymentStatus: row.payment_status,
+    paymentMethod: row.payment_method || undefined,
+    entryMode: row.entry_mode || 'list',
     checkedIn: row.checked_in,
     createdAt: row.created_at,
   };

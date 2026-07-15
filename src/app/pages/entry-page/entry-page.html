@@ -11,6 +11,15 @@
   </header>
 
   <section class="entry-controls">
+    <div class="mode-tabs" aria-label="Modalita ingresso">
+      <button type="button" [class.active]="mode() === 'list'" (click)="setMode('list')">
+        Lista
+      </button>
+      <button type="button" [class.active]="mode() === 'cash'" (click)="setMode('cash')">
+        Cassa
+      </button>
+    </div>
+
     <label>
       Evento
       <select [ngModel]="selectedEventId()" (ngModelChange)="selectEvent($event)">
@@ -37,71 +46,152 @@
       </div>
     </div>
 
-    <label class="search-field">
-      Cerca persona
-      <input
-        type="search"
-        inputmode="search"
-        autocomplete="off"
-        placeholder="Nome, email, telefono..."
-        [ngModel]="searchTerm()"
-        (ngModelChange)="searchTerm.set($event)"
-      />
-    </label>
+    @if (mode() === 'list') {
+      <label class="search-field">
+        Cerca persona
+        <input
+          type="search"
+          inputmode="search"
+          autocomplete="off"
+          placeholder="Nome, email, telefono..."
+          [ngModel]="searchTerm()"
+          (ngModelChange)="searchTerm.set($event)"
+        />
+      </label>
 
-    <div class="filter-bar" aria-label="Filtri lista ingressi">
-      <button type="button" [class.active]="filter() === 'all'" (click)="setFilter('all')">
-        Tutti
-      </button>
-      <button type="button" [class.active]="filter() === 'missing'" (click)="setFilter('missing')">
-        Non entrati
-      </button>
-      <button type="button" [class.active]="filter() === 'entered'" (click)="setFilter('entered')">
-        Entrati
-      </button>
-    </div>
+      <div class="filter-bar" aria-label="Filtri lista ingressi">
+        <button type="button" [class.active]="filter() === 'all'" (click)="setFilter('all')">
+          Tutti
+        </button>
+        <button
+          type="button"
+          [class.active]="filter() === 'missing'"
+          (click)="setFilter('missing')"
+        >
+          Non entrati
+        </button>
+        <button
+          type="button"
+          [class.active]="filter() === 'entered'"
+          (click)="setFilter('entered')"
+        >
+          Entrati
+        </button>
+      </div>
+    }
   </section>
 
   @if (message(); as currentMessage) {
     <p class="entry-message" [class.error]="store.error()">{{ currentMessage }}</p>
   }
 
-  <section class="entry-list" aria-label="Lista persone">
-    @if (filteredTickets().length) {
-      @for (ticket of filteredTickets(); track ticket.id) {
-        <article class="entry-card" [class.entered]="ticket.checkedIn">
-          <div class="person-copy">
-            <span>{{ ticket.checkedIn ? 'Entrato' : 'Da entrare' }}</span>
-            <strong>{{ ticket.firstName }} {{ ticket.lastName }}</strong>
-            <p>{{ ticket.email }} - {{ ticket.phone }}</p>
-          </div>
+  @if (mode() === 'list') {
+    <section class="entry-list" aria-label="Lista persone">
+      @if (filteredTickets().length) {
+        @for (ticket of filteredTickets(); track ticket.id) {
+          <article class="entry-card" [class.entered]="ticket.checkedIn">
+            <div class="person-copy">
+              <span>{{ ticket.checkedIn ? 'Entrato' : 'Da entrare' }}</span>
+              <strong>{{ ticket.firstName }} {{ ticket.lastName }}</strong>
+              <p>{{ ticket.email }} - {{ ticket.phone }}</p>
+            </div>
 
-          @if (ticket.checkedIn) {
-            <button
-              class="btn secondary wide"
-              type="button"
-              [disabled]="isSaving()"
-              (click)="toggleCheckIn(ticket, false)"
-            >
-              Annulla
-            </button>
-          } @else {
-            <button
-              class="btn wide"
-              type="button"
-              [disabled]="isSaving()"
-              (click)="toggleCheckIn(ticket, true)"
-            >
-              Segna ingresso
-            </button>
-          }
-        </article>
+            @if (ticket.checkedIn) {
+              <button
+                class="btn secondary wide"
+                type="button"
+                [disabled]="isSaving()"
+                (click)="toggleCheckIn(ticket, false)"
+              >
+                Annulla
+              </button>
+            } @else {
+              <button
+                class="btn wide"
+                type="button"
+                [disabled]="isSaving()"
+                (click)="toggleCheckIn(ticket, true)"
+              >
+                Segna ingresso
+              </button>
+            }
+          </article>
+        }
+      } @else {
+        <div class="empty-state">
+          <h2>Nessuna persona trovata</h2>
+          <p>Controlla il filtro, la ricerca o la lista dell'evento selezionato.</p>
+        </div>
       }
-    } @else {
-      <div class="empty-state">
-        <h2>Nessuna persona trovata</h2>
-        <p>Controlla il filtro, la ricerca o la lista dell'evento selezionato.</p>
-      </div>
-    }
-  </section>
+    </section>
+  } @else {
+    <section class="entry-list cash-list" aria-label="Cassa ingressi">
+      @if (cashTickets().length) {
+        @for (ticket of cashTickets(); track ticket.id) {
+          <article class="entry-card cash-card">
+            <div class="person-copy">
+              <span>Entrato</span>
+              <strong>{{ ticket.firstName }} {{ ticket.lastName }}</strong>
+              <p>{{ ticket.email }} - {{ ticket.phone }}</p>
+            </div>
+
+            <div class="cash-groups">
+              <div class="cash-group">
+                <span>Modalita di pagamento</span>
+                <div>
+                  <button
+                    class="choice-button"
+                    type="button"
+                    [class.active]="ticket.paymentMethod === 'pos'"
+                    [disabled]="isSaving()"
+                    (click)="setPaymentMethod(ticket, 'pos')"
+                  >
+                    POS
+                  </button>
+                  <button
+                    class="choice-button"
+                    type="button"
+                    [class.active]="ticket.paymentMethod === 'cash'"
+                    [disabled]="isSaving()"
+                    (click)="setPaymentMethod(ticket, 'cash')"
+                  >
+                    Contanti
+                  </button>
+                </div>
+              </div>
+
+              <div class="cash-group">
+                <span>Modalita di ingresso</span>
+                <div>
+                  <button
+                    class="choice-button"
+                    type="button"
+                    [class.active]="ticket.entryMode === 'list'"
+                    [disabled]="isSaving()"
+                    (click)="setEntryMode(ticket, 'list')"
+                  >
+                    Lista
+                  </button>
+                  <button
+                    class="choice-button"
+                    type="button"
+                    [class.active]="ticket.entryMode === 'walk_in'"
+                    [disabled]="isSaving()"
+                    (click)="setEntryMode(ticket, 'walk_in')"
+                  >
+                    Fuori Lista
+                  </button>
+                </div>
+              </div>
+            </div>
+          </article>
+        }
+      } @else {
+        <div class="empty-state">
+          <h2>Nessun ingresso in cassa</h2>
+          <p>Quando una persona viene segnata come entrata in Lista, apparira qui.</p>
+        </div>
+      }
+    </section>
+  }
 </section>

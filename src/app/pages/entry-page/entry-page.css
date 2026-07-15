@@ -113,6 +113,7 @@ select {
   min-height: 58px;
 }
 
+.mode-tabs,
 .filter-bar {
   background: rgba(255, 229, 176, 0.08);
   border: 1px solid rgba(217, 148, 24, 0.22);
@@ -123,6 +124,11 @@ select {
   padding: 5px;
 }
 
+.mode-tabs {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.mode-tabs button,
 .filter-bar button {
   background: transparent;
   border: 0;
@@ -133,6 +139,7 @@ select {
   min-height: 42px;
 }
 
+.mode-tabs button.active,
 .filter-bar button.active {
   background: #d99418;
   color: #2a1208;
@@ -168,6 +175,53 @@ select {
 .entry-card.entered {
   background: rgba(28, 86, 57, 0.72);
   border-color: rgba(149, 224, 173, 0.42);
+}
+
+.cash-card {
+  gap: 14px;
+}
+
+.cash-groups {
+  display: grid;
+  gap: 12px;
+}
+
+.cash-group {
+  background: rgba(255, 229, 176, 0.08);
+  border: 1px solid rgba(217, 148, 24, 0.22);
+  border-radius: 8px;
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+}
+
+.cash-group > span {
+  color: #f3a51d;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cash-group > div {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.choice-button {
+  background: rgba(255, 224, 162, 0.1);
+  border: 1px solid rgba(217, 148, 24, 0.34);
+  border-radius: 8px;
+  color: #f7d99d;
+  cursor: pointer;
+  font-weight: 900;
+  min-height: 48px;
+}
+
+.choice-button.active {
+  background: #d99418;
+  color: #2a1208;
 }
 
 .person-copy {

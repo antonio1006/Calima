@@ -1,11 +1,12 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, OnDestroy, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { Ticket } from '../../models/event.model';
+import { Ticket, TicketEntryMode, TicketPaymentMethod } from '../../models/event.model';
 import { EventStore } from '../../services/event-store';
 
 type EntryFilter = 'all' | 'missing' | 'entered';
+type EntryModeView = 'list' | 'cash';
 
 @Component({
   selector: 'app-entry-page',
@@ -13,12 +14,19 @@ type EntryFilter = 'all' | 'missing' | 'entered';
   templateUrl: './entry-page.html',
   styleUrl: './entry-page.css',
 })
-export class EntryPage {
+export class EntryPage implements OnDestroy {
   readonly store = inject(EventStore);
+  private readonly refreshTimer = window.setInterval(() => {
+    const eventId = this.selectedEvent()?.id;
+    if (eventId) {
+      void this.store.loadEventTickets(eventId);
+    }
+  }, 4000);
 
   readonly selectedEventId = signal('');
   readonly searchTerm = signal('');
   readonly filter = signal<EntryFilter>('missing');
+  readonly mode = signal<EntryModeView>('list');
   readonly isSaving = signal(false);
   readonly message = signal<string | null>(null);
 
@@ -40,6 +48,7 @@ export class EntryPage {
   readonly missingCount = computed(() =>
     Math.max(0, this.eventTickets().length - this.enteredCount()),
   );
+  readonly cashTickets = computed(() => this.eventTickets().filter((ticket) => ticket.checkedIn));
 
   readonly filteredTickets = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
@@ -74,6 +83,10 @@ export class EntryPage {
     });
   }
 
+  ngOnDestroy(): void {
+    window.clearInterval(this.refreshTimer);
+  }
+
   selectEvent(eventId: string): void {
     this.selectedEventId.set(eventId);
     this.searchTerm.set('');
@@ -82,6 +95,12 @@ export class EntryPage {
 
   setFilter(filter: EntryFilter): void {
     this.filter.set(filter);
+  }
+
+  setMode(mode: EntryModeView): void {
+    this.mode.set(mode);
+    this.message.set(null);
+    this.searchTerm.set('');
   }
 
   async toggleCheckIn(ticket: Ticket, checkedIn: boolean): Promise<void> {
@@ -100,5 +119,45 @@ export class EntryPage {
         ? `${updated.firstName} ${updated.lastName} segnato come entrato.`
         : `Ingresso annullato per ${updated.firstName} ${updated.lastName}.`,
     );
+  }
+
+  async setPaymentMethod(ticket: Ticket, paymentMethod: TicketPaymentMethod): Promise<void> {
+    this.message.set(null);
+    this.isSaving.set(true);
+    const updated = await this.store.adminSetTicketCashData(ticket.id, { paymentMethod });
+    this.isSaving.set(false);
+
+    if (!updated) {
+      this.message.set(this.store.error() || 'Aggiornamento pagamento non riuscito.');
+      return;
+    }
+
+    this.message.set(
+      `${updated.firstName} ${updated.lastName}: pagamento ${this.paymentLabel(paymentMethod)}.`,
+    );
+  }
+
+  async setEntryMode(ticket: Ticket, entryMode: TicketEntryMode): Promise<void> {
+    this.message.set(null);
+    this.isSaving.set(true);
+    const updated = await this.store.adminSetTicketCashData(ticket.id, { entryMode });
+    this.isSaving.set(false);
+
+    if (!updated) {
+      this.message.set(this.store.error() || 'Aggiornamento ingresso non riuscito.');
+      return;
+    }
+
+    this.message.set(
+      `${updated.firstName} ${updated.lastName}: ingresso ${this.entryModeLabel(entryMode)}.`,
+    );
+  }
+
+  paymentLabel(paymentMethod: TicketPaymentMethod): string {
+    return paymentMethod === 'pos' ? 'POS' : 'Contanti';
+  }
+
+  entryModeLabel(entryMode: TicketEntryMode): string {
+    return entryMode === 'list' ? 'Lista' : 'Fuori Lista';
   }
 }

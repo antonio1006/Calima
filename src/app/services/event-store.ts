@@ -1,5 +1,12 @@
 import { computed, Injectable, signal } from '@angular/core';
-import { EventItem, EventStats, Ticket, TicketStatus } from '../models/event.model';
+import {
+  EventItem,
+  EventStats,
+  Ticket,
+  TicketEntryMode,
+  TicketPaymentMethod,
+  TicketStatus,
+} from '../models/event.model';
 
 interface AppState {
   events: EventItem[];
@@ -253,6 +260,38 @@ export class EventStore {
     }
   }
 
+  async adminSetTicketCashData(
+    ticketId: string,
+    input: { paymentMethod?: TicketPaymentMethod; entryMode?: TicketEntryMode },
+  ): Promise<Ticket | null> {
+    this.error.set(null);
+
+    try {
+      const response = await fetch('/api/admin/tickets', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: ticketId, ...input }),
+      });
+      const payload = await this.readPayload<TicketResponse>(response);
+      if (!response.ok || !payload.ticket) {
+        this.error.set(this.ticketErrorMessage(payload.error));
+        return null;
+      }
+
+      this.state.update((state) => ({
+        ...state,
+        tickets: state.tickets.map((ticket) =>
+          ticket.id === payload.ticket?.id ? payload.ticket : ticket,
+        ),
+      }));
+      return payload.ticket;
+    } catch (error) {
+      this.error.set(error instanceof Error ? error.message : 'Aggiornamento cassa non riuscito.');
+      return null;
+    }
+  }
+
   async adminDeleteTicket(ticketId: string): Promise<boolean> {
     this.error.set(null);
 
@@ -390,6 +429,8 @@ export class EventStore {
       EVENT_NOT_FOUND: 'Evento non trovato o non ancora pubblicato.',
       EVENT_SOLD_OUT: 'I posti per questo evento sono terminati.',
       INVALID_EVENT_ID: 'Evento non valido. Ricarica la pagina e riprova.',
+      INVALID_ENTRY_MODE: 'Modalita ingresso non valida.',
+      INVALID_PAYMENT_METHOD: 'Modalita pagamento non valida.',
       INVALID_TICKET_STATUS: 'Stato lista non valido.',
       LOGIN_REQUIRED: 'Accedi con un account autorizzato.',
       MISSING_TICKET_UPDATE: 'Scegli quale modifica applicare alla persona.',

@@ -4,6 +4,8 @@ const { adminClient, requireAdmin } = require('../_lib/supabase');
 
 const ACTIVE_STATUSES = ['accepted', 'paid'];
 const MUTABLE_STATUSES = ['pending', 'accepted', 'rejected', 'cancelled'];
+const PAYMENT_METHODS = ['pos', 'cash'];
+const ENTRY_MODES = ['list', 'walk_in'];
 
 module.exports = async function handler(req, res) {
   if (!['GET', 'POST', 'PATCH', 'DELETE'].includes(req.method)) return methodNotAllowed(res);
@@ -56,6 +58,7 @@ module.exports = async function handler(req, res) {
           email: input.email,
           phone: input.phone,
           payment_status: 'accepted',
+          entry_mode: 'list',
         })
         .select('*')
         .single();
@@ -68,13 +71,25 @@ module.exports = async function handler(req, res) {
       const id = String(body.id || '');
       const hasStatus = body.status !== undefined;
       const hasCheckedIn = typeof body.checkedIn === 'boolean';
+      const hasPaymentMethod = body.paymentMethod !== undefined;
+      const hasEntryMode = body.entryMode !== undefined;
       const status = hasStatus ? String(body.status || '') : '';
-      if (!id || (!hasStatus && !hasCheckedIn)) {
+      const paymentMethod = hasPaymentMethod ? String(body.paymentMethod || '') : '';
+      const entryMode = hasEntryMode ? String(body.entryMode || '') : '';
+      if (!id || (!hasStatus && !hasCheckedIn && !hasPaymentMethod && !hasEntryMode)) {
         return json(res, 400, { error: 'MISSING_TICKET_UPDATE' });
       }
 
       if (hasStatus && !MUTABLE_STATUSES.includes(status)) {
         return json(res, 400, { error: 'INVALID_TICKET_STATUS' });
+      }
+
+      if (hasPaymentMethod && !PAYMENT_METHODS.includes(paymentMethod)) {
+        return json(res, 400, { error: 'INVALID_PAYMENT_METHOD' });
+      }
+
+      if (hasEntryMode && !ENTRY_MODES.includes(entryMode)) {
+        return json(res, 400, { error: 'INVALID_ENTRY_MODE' });
       }
 
       const current = await findTicketByPublicId(supabase, id);
@@ -99,6 +114,8 @@ module.exports = async function handler(req, res) {
         : false;
       const payload = {
         payment_status: nextStatus,
+        payment_method: hasPaymentMethod ? paymentMethod : current.payment_method,
+        entry_mode: hasEntryMode ? entryMode : current.entry_mode || 'list',
         checked_in: nextCheckedIn,
         checked_in_at: nextCheckedIn ? current.checked_in_at || new Date().toISOString() : null,
         checked_in_by: nextCheckedIn ? adminProfile.id : null,

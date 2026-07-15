@@ -1,5 +1,7 @@
 export type TicketStatus = 'paid' | 'pending' | 'accepted' | 'rejected' | 'cancelled' | 'refunded';
-export type UserRole = 'client' | 'scanner' | 'admin';
+export type UserRole = 'admin';
+export type TicketPaymentMethod = 'pos' | 'cash';
+export type TicketEntryMode = 'list' | 'walk_in';
 
 export interface EventItem {
   id: string;
@@ -24,6 +26,8 @@ export interface Ticket {
   email: string;
   phone: string;
   paymentStatus: TicketStatus;
+  paymentMethod?: TicketPaymentMethod;
+  entryMode: TicketEntryMode;
   checkedIn: boolean;
   createdAt: string;
 }

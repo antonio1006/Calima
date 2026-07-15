@@ -1,14 +1,6 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { AppUser } from '../models/event.model';
 
-interface ClientRegistration {
-  name: string;
-  email: string;
-  password: string;
-  phone: string;
-  birthDate: string;
-}
-
 interface AuthResponse {
   user: AppUser | null;
   error?: string;
@@ -54,26 +46,6 @@ export class AuthStore {
     const payload = (await response.json()) as AuthResponse;
     if (!response.ok || !payload.user) {
       this.authError.set(this.authMessage(payload.error, 'Credenziali non valide.'));
-      this.currentUser.set(null);
-      return false;
-    }
-
-    this.currentUser.set(payload.user);
-    return true;
-  }
-
-  async registerClient(input: ClientRegistration): Promise<boolean> {
-    this.authError.set(null);
-
-    const response = await fetch('/api/auth/register', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(input),
-    });
-    const payload = (await response.json()) as AuthResponse;
-    if (!response.ok || !payload.user) {
-      this.authError.set(this.authMessage(payload.error, 'Registrazione non riuscita.'));
       this.currentUser.set(null);
       return false;
     }

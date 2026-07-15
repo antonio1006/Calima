@@ -83,6 +83,8 @@ create table if not exists public.tickets (
   email text not null check (email = lower(email) and email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'),
   phone text not null check (phone ~ '^\+?[0-9 ]{8,18}$'),
   payment_status public.ticket_status not null default 'pending',
+  payment_method text check (payment_method is null or payment_method in ('pos', 'cash')),
+  entry_mode text not null default 'list' check (entry_mode in ('list', 'walk_in')),
   checked_in boolean not null default false,
   checked_in_at timestamptz,
   checked_in_by uuid references public.profiles(id) on delete set null,
@@ -109,6 +111,26 @@ drop constraint if exists tickets_email_check;
 alter table public.tickets
 add constraint tickets_email_check
 check (email = lower(email) and email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$');
+
+alter table public.tickets
+add column if not exists payment_method text;
+
+alter table public.tickets
+add column if not exists entry_mode text not null default 'list';
+
+alter table public.tickets
+drop constraint if exists tickets_payment_method_check;
+
+alter table public.tickets
+add constraint tickets_payment_method_check
+check (payment_method is null or payment_method in ('pos', 'cash'));
+
+alter table public.tickets
+drop constraint if exists tickets_entry_mode_check;
+
+alter table public.tickets
+add constraint tickets_entry_mode_check
+check (entry_mode in ('list', 'walk_in'));
 
 insert into
   storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
