@@ -95,6 +95,10 @@
   margin: 8px 0 16px;
 }
 
+.access-eventi{
+  margin: 5px;
+}
+
 form,
 .ticket-list,
 .privilege-list,

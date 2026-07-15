@@ -51,23 +51,13 @@
       <button class="btn secondary" type="button" (click)="logout()">Esci</button>
     </section>
 
-    @if (user.role === 'admin') {
+    @if (user.role !== 'admin') {
       <section class="content-grid">
-        <div class="panel">
-          <span class="eyebrow">Admin</span>
-          <h2>I tuoi privilegi</h2>
-          <div class="privilege-list">
-            @for (privilege of privileges(); track privilege) {
-              <div class="privilege-row">{{ privilege }}</div>
-            }
-          </div>
-        </div>
-
         <aside class="panel">
           <span class="eyebrow">Console</span>
           <h2>Accesso operativo</h2>
           <p class="muted">Puoi entrare nella gestione eventi e modificare la configurazione.</p>
-          <a class="btn wide" routerLink="/admin">Apri gestione eventi</a>
+          <a class="btn wide access-eventi" routerLink="/admin">Apri gestione eventi</a>
           <a class="btn wide secondary" routerLink="/ingressi">Apri modalita ingressi</a>
         </aside>
       </section>
