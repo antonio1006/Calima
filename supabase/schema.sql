@@ -90,9 +90,9 @@ create table if not exists public.tickets (
   profile_id uuid references public.profiles(id) on delete set null,
   first_name text not null,
   last_name text not null,
-  birth_date date not null,
-  email text not null check (email = lower(email) and email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'),
-  phone text not null check (phone ~ '^\+?[0-9 ]{8,18}$'),
+  birth_date date,
+  email text check (email is null or (email = lower(email) and email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$')),
+  phone text check (phone is null or phone ~ '^\+?[0-9 ]{8,18}$'),
   payment_status public.ticket_status not null default 'pending',
   payment_method text check (payment_method is null or payment_method in ('pos', 'cash')),
   entry_mode text not null default 'list' check (entry_mode in ('list', 'walk_in')),
@@ -106,25 +106,34 @@ create table if not exists public.tickets (
 );
 
 alter table public.tickets
+alter column birth_date drop not null;
+
+alter table public.tickets
+alter column email drop not null;
+
+alter table public.tickets
+alter column phone drop not null;
+
+alter table public.tickets
 drop constraint if exists tickets_birth_date_check;
 
 alter table public.tickets
 add constraint tickets_birth_date_check
-check (birth_date <= current_date - interval '13 years');
+check (birth_date is null or birth_date <= current_date - interval '13 years');
 
 alter table public.tickets
 drop constraint if exists tickets_phone_check;
 
 alter table public.tickets
 add constraint tickets_phone_check
-check (phone ~ '^\+?[0-9 ]{8,18}$');
+check (phone is null or phone ~ '^\+?[0-9 ]{8,18}$');
 
 alter table public.tickets
 drop constraint if exists tickets_email_check;
 
 alter table public.tickets
 add constraint tickets_email_check
-check (email = lower(email) and email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$');
+check (email is null or (email = lower(email) and email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'));
 
 alter table public.tickets
 add column if not exists payment_method text;

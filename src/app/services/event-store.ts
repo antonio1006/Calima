@@ -78,7 +78,7 @@ export class EventStore {
 
   ticketsForEmail(email: string): Ticket[] {
     const normalized = email.trim().toLowerCase();
-    return this.state().tickets.filter((ticket) => ticket.email.toLowerCase() === normalized);
+    return this.state().tickets.filter((ticket) => ticket.email?.toLowerCase() === normalized);
   }
 
   async loadTicketsForEmail(email: string): Promise<void> {
@@ -174,7 +174,7 @@ export class EventStore {
   }
 
   async adminAddTicket(
-    input: Pick<Ticket, 'eventId' | 'firstName' | 'lastName' | 'birthDate' | 'email' | 'phone'>,
+    input: Pick<Ticket, 'eventId' | 'firstName' | 'lastName'>,
   ): Promise<Ticket | null> {
     this.error.set(null);
 

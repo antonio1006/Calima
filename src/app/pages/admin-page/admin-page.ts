@@ -54,9 +54,6 @@ export class AdminPage {
   readonly guestForm = this.formBuilder.nonNullable.group({
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
-    birthDate: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]],
-    phone: ['', Validators.required],
   });
 
   constructor() {
@@ -174,7 +171,7 @@ export class AdminPage {
       return;
     }
 
-    this.guestForm.reset({ firstName: '', lastName: '', birthDate: '', email: '', phone: '' });
+    this.guestForm.reset({ firstName: '', lastName: '' });
     this.ticketMessage.set('Persona aggiunta in lista.');
   }
 

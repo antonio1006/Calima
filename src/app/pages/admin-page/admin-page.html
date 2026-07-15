@@ -161,20 +161,6 @@
               <input formControlName="lastName" />
             </label>
           </div>
-          <div class="three">
-            <label>
-              Data nascita
-              <input formControlName="birthDate" type="date" />
-            </label>
-            <label>
-              Email
-              <input formControlName="email" type="email" />
-            </label>
-            <label>
-              Telefono
-              <input formControlName="phone" />
-            </label>
-          </div>
           <div class="actions">
             <button class="btn" type="submit" [disabled]="isTicketSaving()">
               Aggiungi in lista
@@ -191,7 +177,12 @@
               <article class="person-row" [class.entered-row]="ticket.checkedIn">
                 <div class="person-main">
                   <strong>{{ ticket.firstName }} {{ ticket.lastName }}</strong>
-                  <span>{{ ticket.email }} - {{ ticket.phone }}</span>
+                  @if (ticket.email || ticket.phone) {
+                    <span
+                      >{{ ticket.email || 'Senza email' }} -
+                      {{ ticket.phone || 'Senza telefono' }}</span
+                    >
+                  }
                   <span>{{ ticket.id }} - {{ ticket.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
                 </div>
                 <div class="person-statuses">

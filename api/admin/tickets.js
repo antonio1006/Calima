@@ -35,28 +35,19 @@ module.exports = async function handler(req, res) {
       const input = normalizeTicketInput(body);
       if (!isCompleteTicketInput(input)) return json(res, 400, { error: 'MISSING_FIELDS' });
 
-      const duplicate = await findActiveTicketByEmail(supabase, input.eventId, input.email);
-      if (duplicate) return json(res, 409, { error: 'TICKET_ALREADY_EXISTS' });
-
       const capacity = await checkCapacity(supabase, input.eventId, null);
       if (!capacity.ok) return json(res, capacity.status, { error: capacity.error });
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', input.email)
-        .maybeSingle();
 
       const { data, error } = await supabase
         .from('tickets')
         .insert({
           event_id: input.eventId,
-          profile_id: profile?.id || null,
+          profile_id: null,
           first_name: input.firstName,
           last_name: input.lastName,
-          birth_date: input.birthDate,
-          email: input.email,
-          phone: input.phone,
+          birth_date: null,
+          email: null,
+          phone: null,
           payment_status: 'accepted',
           entry_mode: 'list',
         })
@@ -175,23 +166,11 @@ function normalizeTicketInput(body) {
     eventId: String(body.eventId || ''),
     firstName: String(body.firstName || '').trim(),
     lastName: String(body.lastName || '').trim(),
-    birthDate: String(body.birthDate || ''),
-    email: String(body.email || '')
-      .trim()
-      .toLowerCase(),
-    phone: String(body.phone || '').trim(),
   };
 }
 
 function isCompleteTicketInput(input) {
-  return (
-    input.eventId &&
-    input.firstName &&
-    input.lastName &&
-    input.birthDate &&
-    input.email &&
-    input.phone
-  );
+  return input.eventId && input.firstName && input.lastName;
 }
 
 async function findTicketByPublicId(supabase, id) {
@@ -200,19 +179,6 @@ async function findTicketByPublicId(supabase, id) {
   );
   const query = supabase.from('tickets').select('*').limit(1);
   const { data, error } = await (isUuid ? query.eq('id', id) : query.eq('public_code', id));
-
-  if (error) throw error;
-  return data?.[0] || null;
-}
-
-async function findActiveTicketByEmail(supabase, eventId, email) {
-  const { data, error } = await supabase
-    .from('tickets')
-    .select('id')
-    .eq('event_id', eventId)
-    .eq('email', email)
-    .in('payment_status', ACTIVE_STATUSES)
-    .limit(1);
 
   if (error) throw error;
   return data?.[0] || null;

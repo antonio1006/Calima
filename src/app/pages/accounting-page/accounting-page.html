@@ -132,7 +132,12 @@
               <article class="person-row">
                 <div>
                   <strong>{{ ticket.firstName }} {{ ticket.lastName }}</strong>
-                  <span>{{ ticket.email }} - {{ ticket.phone }}</span>
+                  @if (ticket.email || ticket.phone) {
+                    <span
+                      >{{ ticket.email || 'Senza email' }} -
+                      {{ ticket.phone || 'Senza telefono' }}</span
+                    >
+                  }
                 </div>
                 <div class="person-tags">
                   <span>{{ ticket.entryMode === 'list' ? 'Lista' : 'Fuori lista' }}</span>

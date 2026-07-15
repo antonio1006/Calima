@@ -23,9 +23,9 @@ export interface Ticket {
   eventId: string;
   firstName: string;
   lastName: string;
-  birthDate: string;
-  email: string;
-  phone: string;
+  birthDate?: string;
+  email?: string;
+  phone?: string;
   paymentStatus: TicketStatus;
   paymentMethod?: TicketPaymentMethod;
   entryMode: TicketEntryMode;
