@@ -46,6 +46,7 @@ export class AdminPage {
     venue: ['', Validators.required],
     capacity: [1, [Validators.required, Validators.min(1)]],
     price: [0, [Validators.required, Validators.min(0)]],
+    walkInPrice: [0, [Validators.required, Validators.min(0)]],
     image: [''],
     description: ['', Validators.required],
   });
@@ -213,6 +214,7 @@ export class AdminPage {
       venue: event.venue,
       capacity: event.capacity,
       price: event.price,
+      walkInPrice: event.walkInPrice,
       image: event.image,
       description: event.description,
     });

@@ -65,12 +65,23 @@ create table if not exists public.events (
   venue text not null,
   capacity integer not null check (capacity > 0),
   price_cents integer not null default 0 check (price_cents >= 0),
+  walk_in_price_cents integer not null default 0 check (walk_in_price_cents >= 0),
   image_path text not null default 'calima-event-cover.svg',
   description text not null,
   is_published boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.events
+add column if not exists walk_in_price_cents integer not null default 0;
+
+alter table public.events
+drop constraint if exists events_walk_in_price_cents_check;
+
+alter table public.events
+add constraint events_walk_in_price_cents_check
+check (walk_in_price_cents >= 0);
 
 create table if not exists public.tickets (
   id uuid primary key default gen_random_uuid(),

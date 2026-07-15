@@ -2,6 +2,7 @@
   <div class="admin-actions">
     <a class="btn secondary" routerLink="/events">Torna agli eventi</a>
     <a class="btn secondary" routerLink="/ingressi">Modalita ingressi</a>
+    <a class="btn secondary" routerLink="/contabilita">Contabilita</a>
     <button class="btn" type="button" (click)="createEvent()">Nuovo evento</button>
   </div>
 </section>
@@ -113,10 +114,15 @@
                   <input formControlName="capacity" type="number" />
                 </label>
                 <label>
-                  Prezzo
+                  Prezzo lista
                   <input formControlName="price" type="number" />
                 </label>
               </div>
+
+              <label>
+                Costo fuori lista
+                <input formControlName="walkInPrice" type="number" />
+              </label>
 
               <label>
                 Descrizione

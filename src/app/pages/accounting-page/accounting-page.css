@@ -1,0 +1,287 @@
+:host {
+  color: #f9e7c3;
+  display: block;
+}
+
+.accounting-shell {
+  display: grid;
+  gap: 14px;
+  margin: 0 auto;
+  max-width: 1080px;
+  padding: 18px 0 34px;
+}
+
+.accounting-head {
+  align-items: start;
+  background:
+    linear-gradient(120deg, rgba(42, 18, 8, 0.96), rgba(89, 34, 8, 0.78), rgba(13, 73, 78, 0.48)),
+    url('/calima-logo.webp');
+  background-position: center;
+  background-size: cover;
+  border: 1px solid rgba(217, 148, 24, 0.34);
+  border-radius: 8px;
+  box-shadow: 0 18px 46px rgba(17, 8, 3, 0.24);
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  padding: 18px;
+}
+
+.accounting-head h1 {
+  color: #f3a51d;
+  font-size: clamp(42px, 9vw, 86px);
+  letter-spacing: 0;
+  line-height: 0.9;
+  margin: 5px 0 8px;
+  text-transform: uppercase;
+}
+
+.accounting-head p,
+.deduction-panel p,
+.empty-state p,
+.muted,
+.person-row span {
+  color: rgba(249, 231, 195, 0.78);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: end;
+}
+
+.panel,
+.event-choice {
+  background: rgba(58, 21, 8, 0.86);
+  border: 1px solid rgba(217, 148, 24, 0.3);
+  border-radius: 8px;
+  box-shadow: 0 18px 46px rgba(17, 8, 3, 0.24);
+}
+
+.event-picker,
+.people-list {
+  display: grid;
+  gap: 10px;
+}
+
+.event-choice {
+  color: inherit;
+  cursor: pointer;
+  display: grid;
+  gap: 7px;
+  padding: 16px;
+  text-align: left;
+}
+
+.event-choice:hover {
+  border-color: rgba(217, 148, 24, 0.66);
+}
+
+.event-choice span,
+.event-choice em {
+  color: #e5b261;
+  font-style: normal;
+}
+
+.event-choice strong {
+  color: #fff3d8;
+  font-size: 24px;
+  line-height: 1.08;
+}
+
+.panel {
+  padding: 18px;
+}
+
+.price-panel,
+.deduction-panel,
+.total-row,
+.person-row {
+  align-items: center;
+  display: grid;
+  gap: 14px;
+}
+
+.price-panel {
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
+}
+
+.price-grid,
+.summary-grid,
+.totals-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.price-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.price-grid div,
+.summary-card {
+  background: rgba(255, 229, 176, 0.1);
+  border: 1px solid rgba(217, 148, 24, 0.2);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.price-grid span,
+.summary-card span,
+.eyebrow,
+label {
+  color: #f3a51d;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.price-grid strong,
+.summary-card strong,
+.total-row strong {
+  color: #fff3d8;
+  display: block;
+  font-size: clamp(28px, 5vw, 46px);
+  line-height: 1;
+}
+
+.summary-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.summary-card {
+  display: grid;
+  gap: 8px;
+}
+
+.summary-card em {
+  color: #e5b261;
+  font-style: normal;
+}
+
+.summary-card.total {
+  background: rgba(217, 148, 24, 0.2);
+  border-color: rgba(217, 148, 24, 0.54);
+}
+
+.deduction-panel {
+  grid-template-columns: minmax(260px, 0.5fr) minmax(0, 1fr);
+}
+
+label {
+  display: grid;
+  gap: 7px;
+}
+
+input {
+  background: rgba(255, 243, 216, 0.97);
+  border: 1px solid rgba(217, 148, 24, 0.5);
+  border-radius: 8px;
+  color: #24140b;
+  font-size: 22px;
+  font-weight: 900;
+  min-height: 54px;
+  padding: 0 13px;
+}
+
+.totals-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.total-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.total-row h2,
+.section-title h2,
+.empty-state h2 {
+  color: #fff3d8;
+  margin: 6px 0 0;
+}
+
+.people-panel,
+.person-row > div {
+  display: grid;
+  gap: 12px;
+}
+
+.person-row {
+  background: rgba(255, 229, 176, 0.08);
+  border: 1px solid rgba(217, 148, 24, 0.24);
+  border-radius: 8px;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  padding: 14px;
+}
+
+.person-row strong {
+  color: #fff3d8;
+}
+
+.person-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.person-tags span {
+  background: rgba(255, 224, 162, 0.12);
+  border: 1px solid rgba(217, 148, 24, 0.3);
+  border-radius: 999px;
+  color: #f7d99d;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 7px 10px;
+  text-transform: uppercase;
+}
+
+.btn {
+  align-items: center;
+  background: #d99418;
+  border: 0;
+  border-radius: 8px;
+  color: #2a1208;
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 900;
+  justify-content: center;
+  min-height: 54px;
+  padding: 0 16px;
+  text-decoration: none;
+}
+
+.btn.secondary {
+  background: rgba(255, 224, 162, 0.12);
+  border: 1px solid rgba(217, 148, 24, 0.38);
+  color: #f7d99d;
+}
+
+@media (max-width: 860px) {
+  .accounting-shell {
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    padding: 10px 12px 28px;
+    width: 100vw;
+  }
+
+  .accounting-head,
+  .price-panel,
+  .deduction-panel,
+  .total-row,
+  .person-row {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
+  .head-actions {
+    justify-content: start;
+  }
+
+  .summary-grid,
+  .totals-grid,
+  .price-grid {
+    grid-template-columns: 1fr;
+  }
+}

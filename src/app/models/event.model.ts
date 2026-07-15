@@ -12,6 +12,7 @@ export interface EventItem {
   venue: string;
   capacity: number;
   price: number;
+  walkInPrice: number;
   image: string;
   description: string;
   stats?: EventStats;

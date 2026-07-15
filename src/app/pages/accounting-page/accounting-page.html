@@ -1,0 +1,151 @@
+<section class="accounting-shell">
+  <header class="accounting-head">
+    <div>
+      <span class="eyebrow">Contabilita</span>
+      <h1>{{ selectedEvent() ? 'Conti serata' : 'Scegli serata' }}</h1>
+      @if (selectedEvent(); as event) {
+        <p>{{ event.name }} - {{ event.date | date: 'dd/MM/yyyy' }} - {{ event.time }}</p>
+      } @else {
+        <p>Seleziona una serata per vedere incassi, ingressi lista e fuori lista.</p>
+      }
+    </div>
+
+    <div class="head-actions">
+      @if (selectedEvent()) {
+        <button class="btn secondary" type="button" (click)="clearEvent()">Cambia serata</button>
+      }
+      <a class="btn secondary" routerLink="/ingressi">Ingressi</a>
+      <a class="btn secondary" routerLink="/admin">Admin</a>
+    </div>
+  </header>
+
+  @if (!selectedEvent()) {
+    <section class="event-picker" aria-label="Scegli serata">
+      @if (store.events().length) {
+        @for (event of store.events(); track event.id) {
+          <button class="event-choice" type="button" (click)="selectEvent(event.id)">
+            <span>{{ event.date | date: 'dd/MM/yyyy' }} - {{ event.time }}</span>
+            <strong>{{ event.name }}</strong>
+            <em>{{ event.venue }}, {{ event.city }}</em>
+          </button>
+        }
+      } @else {
+        <div class="panel empty-state">
+          <h2>Nessuna serata disponibile</h2>
+          <p>Crea un evento admin prima di aprire la contabilità.</p>
+        </div>
+      }
+    </section>
+  } @else {
+    @if (selectedEvent(); as event) {
+      <section class="panel price-panel">
+        <div>
+          <span class="eyebrow">Prezzi evento</span>
+          <h2>{{ event.name }}</h2>
+        </div>
+
+        <div class="price-grid">
+          <div>
+            <span>Biglietto lista</span>
+            <strong>{{ event.price | currency: 'EUR' }}</strong>
+          </div>
+          <div>
+            <span>Costo fuori lista</span>
+            <strong>{{ event.walkInPrice | currency: 'EUR' }}</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel deduction-panel">
+        <label>
+          Euro da detrarre per ogni ingresso in lista
+          <input
+            type="number"
+            min="0"
+            step="0.5"
+            [ngModel]="listDeduction()"
+            (ngModelChange)="updateListDeduction($event)"
+          />
+        </label>
+        <p>
+          La detrazione si applica solo alle persone entrate con modalita Lista. Gli ingressi Fuori
+          Lista restano calcolati al costo fuori lista.
+        </p>
+      </section>
+
+      <section class="summary-grid" aria-label="Riepilogo economico">
+        <article class="panel summary-card">
+          <span>Persone in lista</span>
+          <strong>{{ listTickets().length }}</strong>
+          <em>{{ listGross() | currency: 'EUR' }} lordo</em>
+        </article>
+        <article class="panel summary-card">
+          <span>Persone fuori lista</span>
+          <strong>{{ walkInTickets().length }}</strong>
+          <em>{{ walkInTotal() | currency: 'EUR' }}</em>
+        </article>
+        <article class="panel summary-card">
+          <span>Detrazione lista</span>
+          <strong>{{ listDeductionTotal() | currency: 'EUR' }}</strong>
+          <em>{{ listDeduction() | currency: 'EUR' }} per persona</em>
+        </article>
+        <article class="panel summary-card total">
+          <span>Somma totale</span>
+          <strong>{{ totalRevenue() | currency: 'EUR' }}</strong>
+          <em>Lista netta + fuori lista</em>
+        </article>
+      </section>
+
+      <section class="totals-grid">
+        <article class="panel total-row">
+          <div>
+            <span class="eyebrow">Lista</span>
+            <h2>Totale lista netto</h2>
+          </div>
+          <strong>{{ listNet() | currency: 'EUR' }}</strong>
+        </article>
+        <article class="panel total-row">
+          <div>
+            <span class="eyebrow">Metodi</span>
+            <h2>POS</h2>
+          </div>
+          <strong>{{ posRevenue() | currency: 'EUR' }}</strong>
+        </article>
+        <article class="panel total-row">
+          <div>
+            <span class="eyebrow">Metodi</span>
+            <h2>Contanti</h2>
+          </div>
+          <strong>{{ cashRevenue() | currency: 'EUR' }}</strong>
+        </article>
+      </section>
+
+      <section class="panel people-panel">
+        <div class="section-title">
+          <span class="eyebrow">Ingressi contabilizzati</span>
+          <h2>Persone confermate in cassa</h2>
+        </div>
+
+        @if (confirmedTickets().length) {
+          <div class="people-list">
+            @for (ticket of confirmedTickets(); track ticket.id) {
+              <article class="person-row">
+                <div>
+                  <strong>{{ ticket.firstName }} {{ ticket.lastName }}</strong>
+                  <span>{{ ticket.email }} - {{ ticket.phone }}</span>
+                </div>
+                <div class="person-tags">
+                  <span>{{ ticket.entryMode === 'list' ? 'Lista' : 'Fuori lista' }}</span>
+                  <span>{{ ticket.paymentMethod === 'pos' ? 'POS' : 'Contanti' }}</span>
+                </div>
+                <strong>{{ ticketAmount(ticket) | currency: 'EUR' }}</strong>
+              </article>
+            }
+          </div>
+        } @else {
+          <p class="muted">Non ci sono ancora persone confermate in cassa per questa serata.</p>
+        }
+      </section>
+    }
+  }
+</section>
