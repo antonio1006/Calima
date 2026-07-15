@@ -174,7 +174,10 @@ export class EventStore {
   }
 
   async adminAddTicket(
-    input: Pick<Ticket, 'eventId' | 'firstName' | 'lastName'>,
+    input: Pick<Ticket, 'eventId' | 'firstName' | 'lastName'> & {
+      entryMode?: TicketEntryMode;
+      checkedIn?: boolean;
+    },
   ): Promise<Ticket | null> {
     this.error.set(null);
 

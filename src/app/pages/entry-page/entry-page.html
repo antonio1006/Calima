@@ -50,7 +50,7 @@
       <div class="counter-grid" aria-label="Conteggio ingressi">
         <div>
           <strong>{{ eventTickets().length }}</strong>
-          <span>in lista</span>
+          <span>persone</span>
         </div>
         <div>
           <strong>{{ enteredCount() }}</strong>
@@ -94,6 +94,18 @@
             Entrati
           </button>
         </div>
+
+        <div class="list-add-bar">
+          <button
+            class="add-button"
+            type="button"
+            aria-label="Aggiungi persona"
+            (click)="openQuickAdd()"
+          >
+            +
+          </button>
+          <span>Aggiungi persona e mandala in cassa</span>
+        </div>
       } @else {
         <div class="cash-view-bar" aria-label="Vista cassa">
           <button
@@ -116,6 +128,60 @@
       }
     </section>
 
+    @if (mode() === 'list' && isQuickAddOpen()) {
+      <section class="quick-add-panel" aria-label="Aggiunta rapida persona">
+        <div class="quick-add-head">
+          <div>
+            <span class="eyebrow">Ingresso rapido</span>
+            <h2>Nuova persona</h2>
+          </div>
+          <button class="btn secondary compact-icon" type="button" (click)="closeQuickAdd()">
+            Chiudi
+          </button>
+        </div>
+
+        <div class="quick-fields">
+          <label>
+            Nome
+            <input
+              autocomplete="off"
+              [ngModel]="quickFirstName()"
+              (ngModelChange)="quickFirstName.set($event)"
+            />
+          </label>
+          <label>
+            Cognome
+            <input
+              autocomplete="off"
+              [ngModel]="quickLastName()"
+              (ngModelChange)="quickLastName.set($event)"
+            />
+          </label>
+        </div>
+
+        <div class="quick-mode" aria-label="Modalita ingresso nuova persona">
+          <button
+            type="button"
+            [class.active]="quickEntryMode() === 'list'"
+            (click)="setQuickEntryMode('list')"
+          >
+            In lista
+          </button>
+          <button
+            type="button"
+            [class.active]="quickEntryMode() === 'walk_in'"
+            (click)="setQuickEntryMode('walk_in')"
+          >
+            Fuori lista
+          </button>
+        </div>
+
+        <button class="btn wide" type="button" [disabled]="isSaving()" (click)="addQuickGuest()">
+          Conferma e apri in cassa
+        </button>
+      </section>
+    }
+
     @if (message(); as currentMessage) {
       <p class="entry-message" [class.error]="store.error()">{{ currentMessage }}</p>
     }
@@ -126,7 +192,15 @@
           @for (ticket of filteredTickets(); track ticket.id) {
             <article class="entry-card" [class.entered]="ticket.checkedIn">
               <div class="person-copy">
-                <span>{{ ticket.checkedIn ? 'Entrato' : 'Da entrare' }}</span>
+                <span>
+                  {{
+                    ticket.entryMode === 'walk_in'
+                      ? 'Fuori lista'
+                      : ticket.checkedIn
+                        ? 'Entrato'
+                        : 'Da entrare'
+                  }}
+                </span>
                 <strong>{{ ticket.firstName }} {{ ticket.lastName }}</strong>
                 @if (ticket.email || ticket.phone) {
                   <p>

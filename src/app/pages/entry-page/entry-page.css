@@ -53,6 +53,7 @@
 .entry-controls,
 .event-choice,
 .entry-card,
+.quick-add-panel,
 .empty-state {
   background: rgba(58, 21, 8, 0.86);
   border: 1px solid rgba(217, 148, 24, 0.3);
@@ -211,6 +212,83 @@ select {
   line-height: 1;
 }
 
+.list-add-bar {
+  align-items: center;
+  background: rgba(255, 229, 176, 0.08);
+  border: 1px solid rgba(217, 148, 24, 0.22);
+  border-radius: 8px;
+  display: flex;
+  gap: 10px;
+  padding: 8px;
+}
+
+.list-add-bar span {
+  color: #f7d99d;
+  font-weight: 900;
+}
+
+.add-button {
+  background: #d99418;
+  border: 0;
+  border-radius: 8px;
+  color: #2a1208;
+  cursor: pointer;
+  flex: 0 0 52px;
+  font-size: 32px;
+  font-weight: 900;
+  height: 52px;
+  line-height: 1;
+}
+
+.quick-add-panel {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.quick-add-head {
+  align-items: start;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.quick-add-head h2 {
+  color: #fff3d8;
+  margin: 4px 0 0;
+}
+
+.quick-fields {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.quick-mode {
+  background: rgba(255, 229, 176, 0.08);
+  border: 1px solid rgba(217, 148, 24, 0.22);
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 5px;
+}
+
+.quick-mode button {
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  color: rgba(249, 231, 195, 0.76);
+  cursor: pointer;
+  font-weight: 900;
+  min-height: 48px;
+}
+
+.quick-mode button.active {
+  background: #d99418;
+  color: #2a1208;
+}
+
 .entry-message {
   background: rgba(149, 224, 173, 0.14);
   border: 1px solid rgba(149, 224, 173, 0.34);
@@ -322,6 +400,10 @@ select {
   color: #f7d99d;
 }
 
+.btn.compact-icon {
+  min-height: 40px;
+}
+
 .btn:disabled {
   cursor: wait;
   opacity: 0.65;
@@ -359,5 +441,14 @@ select {
 
   .search-field {
     top: 58px;
+  }
+
+  .quick-add-head,
+  .list-add-bar {
+    align-items: stretch;
+  }
+
+  .quick-fields {
+    grid-template-columns: 1fr;
   }
 }

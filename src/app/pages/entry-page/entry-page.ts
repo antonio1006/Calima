@@ -31,6 +31,10 @@ export class EntryPage implements OnDestroy {
   readonly cashView = signal<CashView>('pending');
   readonly isSaving = signal(false);
   readonly message = signal<string | null>(null);
+  readonly isQuickAddOpen = signal(false);
+  readonly quickFirstName = signal('');
+  readonly quickLastName = signal('');
+  readonly quickEntryMode = signal<TicketEntryMode>('list');
 
   readonly selectedEvent = computed(() => {
     const selectedId = this.selectedEventId();
@@ -95,6 +99,7 @@ export class EntryPage implements OnDestroy {
     this.message.set(null);
     this.mode.set('list');
     this.cashView.set('pending');
+    this.resetQuickAdd();
   }
 
   clearEvent(): void {
@@ -104,6 +109,7 @@ export class EntryPage implements OnDestroy {
     this.filter.set('missing');
     this.mode.set('list');
     this.cashView.set('pending');
+    this.resetQuickAdd();
   }
 
   setFilter(filter: EntryFilter): void {
@@ -115,11 +121,60 @@ export class EntryPage implements OnDestroy {
     this.message.set(null);
     this.searchTerm.set('');
     this.cashView.set('pending');
+    if (mode !== 'list') {
+      this.isQuickAddOpen.set(false);
+    }
   }
 
   setCashView(view: CashView): void {
     this.cashView.set(view);
     this.message.set(null);
+  }
+
+  openQuickAdd(): void {
+    this.isQuickAddOpen.set(true);
+    this.message.set(null);
+  }
+
+  closeQuickAdd(): void {
+    this.resetQuickAdd();
+  }
+
+  setQuickEntryMode(entryMode: TicketEntryMode): void {
+    this.quickEntryMode.set(entryMode);
+  }
+
+  async addQuickGuest(): Promise<void> {
+    this.message.set(null);
+    const event = this.selectedEvent();
+    const firstName = this.quickFirstName().trim();
+    const lastName = this.quickLastName().trim();
+
+    if (!event || !firstName || !lastName) {
+      this.message.set('Inserisci nome e cognome prima di confermare.');
+      return;
+    }
+
+    this.isSaving.set(true);
+    const ticket = await this.store.adminAddTicket({
+      eventId: event.id,
+      firstName,
+      lastName,
+      entryMode: this.quickEntryMode(),
+      checkedIn: true,
+    });
+    this.isSaving.set(false);
+
+    if (!ticket) {
+      this.message.set(this.store.error() || 'Aggiunta rapida non riuscita.');
+      return;
+    }
+
+    this.resetQuickAdd();
+    this.mode.set('cash');
+    this.cashView.set('pending');
+    this.searchTerm.set('');
+    this.message.set(`${ticket.firstName} ${ticket.lastName} aggiunto e pronto in cassa.`);
   }
 
   async toggleCheckIn(ticket: Ticket, checkedIn: boolean): Promise<void> {
@@ -213,5 +268,12 @@ export class EntryPage implements OnDestroy {
       .toLowerCase();
 
     return haystack.includes(term);
+  }
+
+  private resetQuickAdd(): void {
+    this.isQuickAddOpen.set(false);
+    this.quickFirstName.set('');
+    this.quickLastName.set('');
+    this.quickEntryMode.set('list');
   }
 }

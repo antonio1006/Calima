@@ -34,6 +34,9 @@ module.exports = async function handler(req, res) {
     if (req.method === 'POST') {
       const input = normalizeTicketInput(body);
       if (!isCompleteTicketInput(input)) return json(res, 400, { error: 'MISSING_FIELDS' });
+      if (!ENTRY_MODES.includes(input.entryMode)) {
+        return json(res, 400, { error: 'INVALID_ENTRY_MODE' });
+      }
 
       const capacity = await checkCapacity(supabase, input.eventId, null);
       if (!capacity.ok) return json(res, capacity.status, { error: capacity.error });
@@ -49,7 +52,11 @@ module.exports = async function handler(req, res) {
           email: null,
           phone: null,
           payment_status: 'accepted',
-          entry_mode: 'list',
+          entry_mode: input.entryMode,
+          checked_in: input.checkedIn,
+          checked_in_at: input.checkedIn ? new Date().toISOString() : null,
+          checked_in_by: input.checkedIn ? adminProfile.id : null,
+          cash_confirmed: false,
         })
         .select('*')
         .single();
@@ -166,6 +173,8 @@ function normalizeTicketInput(body) {
     eventId: String(body.eventId || ''),
     firstName: String(body.firstName || '').trim(),
     lastName: String(body.lastName || '').trim(),
+    entryMode: String(body.entryMode || 'list'),
+    checkedIn: typeof body.checkedIn === 'boolean' ? body.checkedIn : false,
   };
 }
 
