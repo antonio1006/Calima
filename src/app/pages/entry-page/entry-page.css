@@ -43,7 +43,15 @@
   margin: 0;
 }
 
+.head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: end;
+}
+
 .entry-controls,
+.event-choice,
 .entry-card,
 .empty-state {
   background: rgba(58, 21, 8, 0.86);
@@ -56,9 +64,36 @@
   display: grid;
   gap: 12px;
   padding: 14px;
-  position: sticky;
-  top: 70px;
-  z-index: 3;
+}
+
+.event-picker {
+  display: grid;
+  gap: 10px;
+}
+
+.event-choice {
+  color: inherit;
+  cursor: pointer;
+  display: grid;
+  gap: 7px;
+  padding: 16px;
+  text-align: left;
+}
+
+.event-choice:hover {
+  border-color: rgba(217, 148, 24, 0.66);
+}
+
+.event-choice span,
+.event-choice em {
+  color: #e5b261;
+  font-style: normal;
+}
+
+.event-choice strong {
+  color: #fff3d8;
+  font-size: 24px;
+  line-height: 1.08;
 }
 
 .counter-grid {
@@ -95,6 +130,17 @@ label,
 label {
   display: grid;
   gap: 7px;
+}
+
+.search-field {
+  background: rgba(58, 21, 8, 0.94);
+  border: 1px solid rgba(217, 148, 24, 0.34);
+  border-radius: 8px;
+  box-shadow: 0 12px 34px rgba(17, 8, 3, 0.28);
+  padding: 10px;
+  position: sticky;
+  top: 70px;
+  z-index: 3;
 }
 
 input,
@@ -287,7 +333,11 @@ select {
     display: grid;
   }
 
-  .entry-controls {
+  .head-actions {
+    justify-content: start;
+  }
+
+  .search-field {
     top: 58px;
   }
 }

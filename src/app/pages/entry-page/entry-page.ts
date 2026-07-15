@@ -31,9 +31,9 @@ export class EntryPage implements OnDestroy {
   readonly message = signal<string | null>(null);
 
   readonly selectedEvent = computed(() => {
-    const events = this.store.events();
-    const selectedId = this.selectedEventId() || events[0]?.id;
-    return events.find((event) => event.id === selectedId) ?? events[0];
+    const selectedId = this.selectedEventId();
+    if (!selectedId) return undefined;
+    return this.store.events().find((event) => event.id === selectedId);
   });
 
   readonly eventTickets = computed(() => {
@@ -48,33 +48,22 @@ export class EntryPage implements OnDestroy {
   readonly missingCount = computed(() =>
     Math.max(0, this.eventTickets().length - this.enteredCount()),
   );
-  readonly cashTickets = computed(() => this.eventTickets().filter((ticket) => ticket.checkedIn));
+  readonly cashTickets = computed(() =>
+    this.eventTickets().filter((ticket) => ticket.checkedIn && this.matchesSearch(ticket)),
+  );
 
   readonly filteredTickets = computed(() => {
-    const term = this.searchTerm().trim().toLowerCase();
     const filter = this.filter();
 
     return this.eventTickets().filter((ticket) => {
       if (filter === 'missing' && ticket.checkedIn) return false;
       if (filter === 'entered' && !ticket.checkedIn) return false;
-      if (!term) return true;
-
-      const haystack = [ticket.firstName, ticket.lastName, ticket.email, ticket.phone, ticket.id]
-        .join(' ')
-        .toLowerCase();
-
-      return haystack.includes(term);
+      return this.matchesSearch(ticket);
     });
   });
 
   constructor() {
     void this.store.refreshEvents(true);
-    effect(() => {
-      const firstEvent = this.store.events()[0];
-      if (!this.selectedEventId() && firstEvent) {
-        this.selectedEventId.set(firstEvent.id);
-      }
-    });
     effect(() => {
       const eventId = this.selectedEvent()?.id;
       if (eventId) {
@@ -91,6 +80,15 @@ export class EntryPage implements OnDestroy {
     this.selectedEventId.set(eventId);
     this.searchTerm.set('');
     this.message.set(null);
+    this.mode.set('list');
+  }
+
+  clearEvent(): void {
+    this.selectedEventId.set('');
+    this.searchTerm.set('');
+    this.message.set(null);
+    this.filter.set('missing');
+    this.mode.set('list');
   }
 
   setFilter(filter: EntryFilter): void {
@@ -159,5 +157,16 @@ export class EntryPage implements OnDestroy {
 
   entryModeLabel(entryMode: TicketEntryMode): string {
     return entryMode === 'list' ? 'Lista' : 'Fuori Lista';
+  }
+
+  private matchesSearch(ticket: Ticket): boolean {
+    const term = this.searchTerm().trim().toLowerCase();
+    if (!term) return true;
+
+    const haystack = [ticket.firstName, ticket.lastName, ticket.email, ticket.phone, ticket.id]
+      .join(' ')
+      .toLowerCase();
+
+    return haystack.includes(term);
   }
 }
